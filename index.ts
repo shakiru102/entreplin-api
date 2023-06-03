@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 .catch(err => console.log(err))
 
 const app = express()
-const Port = 3000 || process.env.PORT
+const Port = process.env.PORT || 3000
 app.listen(Port, () => console.log('listening on port ' + Port))
 app.use(cors(params))
 

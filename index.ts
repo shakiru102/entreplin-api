@@ -3,6 +3,7 @@ import express, { Request, Response } from  'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import env  from 'dotenv'
+import Auth from './routes/auth'
 
 env.config()
 
@@ -20,8 +21,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 const app = express()
 const Port = process.env.PORT || 3000
+
 app.listen(Port, () => console.log('listening on port ' + Port))
 app.use(cors(params))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use('/auth', Auth)
 
 
 app.get('/', (req: Request, res: Response) => res.send('server is running.'))

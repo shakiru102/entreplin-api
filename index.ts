@@ -4,6 +4,8 @@ import cors from 'cors'
 import mongoose from 'mongoose'
 import env  from 'dotenv'
 import Auth from './routes/auth'
+import UserRoutes from './routes/user-profile'
+import SupportRoutes from './routes/support'
 
 env.config()
 
@@ -26,7 +28,9 @@ app.listen(Port, () => console.log('listening on port ' + Port))
 app.use(cors(params))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use('/auth', Auth)
+app.use('/api/auth', Auth)
+app.use('/api/user', UserRoutes)
+app.use('/api/support', SupportRoutes)
 
 
 app.get('/', (req: Request, res: Response) => res.send('server is running.'))

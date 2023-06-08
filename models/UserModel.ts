@@ -31,7 +31,11 @@ const schema = new mongoose.Schema<SignUpProps>({
      emailVerified: {
         type: Boolean,
         default: false
+     },
+     picture: {
+        type: String,
+        trim: true
      }
 })
 
-export default mongoose.model("User", schema);
+export default mongoose.model<SignUpProps>("User", schema);

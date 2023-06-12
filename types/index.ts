@@ -26,9 +26,11 @@ export interface SupportProps {
         imageId: string;
         url: string;
     }[];
+    createdAt: Date;
 }
 
 export interface TransactionProps {
+    post?: string;
     transactionType?: string;
     companyName?: string;
     companyBio?: string;
@@ -36,12 +38,17 @@ export interface TransactionProps {
     companyWebsite?: string;
     price?: number;
     companyLogo?: {
-        imageId: string;
-        url: string;
+        imageId: any;
+        url: any;
     };
-    companyImage?: {
-        imageId: string;
-        url: string;
+    companyImages?: {
+        imageId: any;
+        url: any;
     }[];
+    createdAt: Date;
+    country?: string;
+    state?: string;
+    authorId?: string;
+
 }
 

@@ -8,7 +8,7 @@ const schema = new mongoose.Schema<TransactionProps>({
     companyName: {
         type: String,
     },
-    companyImage: [
+    companyImages: [
         {
             imageId: {
                 type: String,
@@ -39,6 +39,22 @@ const schema = new mongoose.Schema<TransactionProps>({
             type: String,
         }
     },
+    createdAt: {
+        type: Date,
+        default: Date.now()
+    },
+    authorId: {
+        type: String,
+    },
+    post: {
+            type: String,
+        },
+    country: {
+        type: String,
+    },
+    state: {
+        type: String,
+    }    
 })
 
 export default mongoose.model('Transactions', schema)

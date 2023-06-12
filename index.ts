@@ -6,6 +6,7 @@ import env  from 'dotenv'
 import Auth from './routes/auth'
 import UserRoutes from './routes/user-profile'
 import SupportRoutes from './routes/support'
+import TransactionRoutes from './routes/transactions'
 
 env.config()
 
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/api/auth', Auth)
 app.use('/api/user', UserRoutes)
 app.use('/api/support', SupportRoutes)
+app.use('/api/transaction', TransactionRoutes)
 
 
 app.get('/', (req: Request, res: Response) => res.send('server is running.'))

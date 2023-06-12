@@ -24,9 +24,9 @@ export const saveFile = async (path: any, folder: string, id?: string) => {
     }
 }
 
-export const deleteFile = async (path: any) => { 
+export const deleteFile = async (id: any) => { 
     try {
-        const fileDeleted = await cloudinary.v2.uploader.destroy(path)
+        const fileDeleted = await cloudinary.v2.uploader.destroy(id)
         return { fileDeleted }
      } catch (error: any) {
          return { error }

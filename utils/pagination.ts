@@ -22,7 +22,9 @@ const paginatedResult = (
                 limit: limit
             }
         }
-        embedded.totalPages = Math.round(data.length / limit)
+        const totalpages = Math.round(data.length / limit)
+        embedded.totalPages = totalpages === 0 ? 1 : totalpages 
+        embedded.totalResults = data.length
 
         return {
             embedded,

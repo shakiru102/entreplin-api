@@ -1,5 +1,5 @@
 import joi from 'joi'
-import { SupportProps, SignUpProps } from '../types'
+import { SupportProps, SignUpProps, TransactionProps } from '../types'
 
 const signupSchema = joi.object<SignUpProps>({
     email: joi.string().email().required(),
@@ -47,6 +47,18 @@ const updateSupportStatusSchema = joi.object<SupportProps>({
     supportType: joi.string().required(),
 })
 
+const transactionSchema = joi.object<TransactionProps>({
+    companyBio: joi.string().required(),
+    companyName: joi.string().required(),
+    companyProducts: joi.array().items(joi.string().required()).required(),
+    companyWebsite: joi.string().required(),
+    // price: joi.number().required(),
+    post: joi.string().required(),
+    transactionType: joi.string().required(),
+    country: joi.string().required(),
+    state: joi.string().required()
+})
+
 
 export const signupValidate = (data: SignUpProps) => signupSchema.validate(data); //
 export const emailValidate = (data: SignUpProps['email']) => emailValidationSchema.validate(data); //
@@ -55,5 +67,6 @@ export const tokenValidate = (data: string) => tokenSchema.validate(data); //
 export const signinValidate = (data: SignUpProps) => signinSchema.validate(data); //
 export const passwordValidate = (data: string) => passwordValidationSchema.validate(data); //
 export const updateUserPasswordValidate = (data: { currentPassword: string; newPassword: string }) => updateUserPasswordSchema.validate(data); //
-export const supportSchemaValidate = (date: SupportProps) => supportSchema.validate(date); //
-export const updateSupportStatusValidate = (date: SupportProps) => updateSupportStatusSchema.validate(date); //
+export const supportSchemaValidate = (data: SupportProps) => supportSchema.validate(data); //
+export const updateSupportStatusValidate = (data: SupportProps) => updateSupportStatusSchema.validate(data); //
+export const transactionSchemaValidate = (data: TransactionProps) => transactionSchema.validate(data); //

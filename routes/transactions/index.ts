@@ -14,8 +14,8 @@ route.post('/create-transaction', auth, upload.fields([
 route.get('/transactions', getBuisnessTransaction)
 route.get('/single-transaction/:transactionId', singleBuisnessTransaction)
 route.get('/user-saved-transaction', auth, userSavedBuisnessTransaction)
-route.patch('/save-buisness-transaction/:transactionId', auth, saveBuinessTransaction)
-route.patch('/unsave-buisness-transaction/:transactionId', auth, unsaveBuisnessTransaction)
+route.get('/save-buisness-transaction/:transactionId', auth, saveBuinessTransaction)
+route.get('/unsave-buisness-transaction/:transactionId', auth, unsaveBuisnessTransaction)
 route.delete('/buisness-transaction/:transactionId', auth, deleteBuisnessTransaction)
 
 

@@ -36,6 +36,6 @@ const schema = new mongoose.Schema<SignUpProps>({
         type: String,
         trim: true
      }
-})
+}, { timestamps: true })
 
 export default mongoose.model<SignUpProps>("User", schema);

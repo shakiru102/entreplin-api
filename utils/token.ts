@@ -6,7 +6,7 @@ export const encode = (email: string): string => {
             .sign(
                 { email }, 
                 process.env.JWT_SECRET as any,
-                { expiresIn: '48h' }
+                { expiresIn: '2d' }
             )
 }
 

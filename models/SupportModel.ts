@@ -43,12 +43,7 @@ const schema = new mongoose.Schema<SupportProps>({
                 type: String,
             }
         }
-    ],
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    }    
-
-})
+    ]
+}, { timestamps: true })
 
 export default mongoose.model<SupportProps>('Supports', schema)

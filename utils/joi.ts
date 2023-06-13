@@ -60,6 +60,7 @@ const transactionSchema = joi.object<TransactionProps>({
 })
 
 
+
 export const signupValidate = (data: SignUpProps) => signupSchema.validate(data); //
 export const emailValidate = (data: SignUpProps['email']) => emailValidationSchema.validate(data); //
 export const locationValidate = (data: SignUpProps) => locationSchema.validate(data); //

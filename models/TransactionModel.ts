@@ -39,10 +39,6 @@ const schema = new mongoose.Schema<TransactionProps>({
             type: String,
         }
     },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
     authorId: {
         type: String,
     },
@@ -54,7 +50,11 @@ const schema = new mongoose.Schema<TransactionProps>({
     },
     state: {
         type: String,
+    },
+    savedUsers: {
+        type: Array,
+        default: []
     }    
-})
+}, { timestamps: true })
 
 export default mongoose.model('Transactions', schema)

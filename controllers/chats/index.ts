@@ -127,3 +127,43 @@ export const unReadMessageNotification = async (req: Request, res: Response) => 
     }
 }
 
+export const lastRoomMessage = async (req: Request, res: Response) => {
+    const roomId = req.params.roomId
+    try {
+        const message = await MessageModel.find({ roomId })
+        if(!message) return res.status(404).send({ error: 'Could not get message' })
+        const lastMassage = message.slice(-1)
+        return res.status(200).json(lastMassage[0])
+    } catch (error: any) {
+        res.status(500).send(error)
+    }
+}
+
+export const allUnreadMessageNotifications = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    const notifications = []
+    try {
+        const rooms = await ChatRoom.find({
+            members: {
+                $in: [ userId ]
+            }
+        })
+        if(!rooms) return res.status(400).send({ error: 'Could not find chatrooms' })
+        for (let room of rooms) {
+            const messages = await MessageModel.find({ roomId: room._id, isRead: false }, {
+                text: 0,
+                attachments: 0
+            })
+            if(!messages) return res.status(400).send({ error: 'Could not find messages' })
+            for (let message of messages) {
+                if(message.senderId!== userId) {
+                    notifications.push(message)
+                }
+            }
+        }
+        res.status(200).json(notifications)
+    } catch (error: any) {
+        res.status(500).send(error)
+    }
+}

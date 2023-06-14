@@ -8,6 +8,9 @@ import UserRoutes from './routes/user-profile'
 import SupportRoutes from './routes/support'
 import TransactionRoutes from './routes/transactions'
 import ChatRoutes from './routes/chats'
+import http from 'http'
+import { Server } from "socket.io"
+import socketIO from './sockets/index'
 
 env.config()
 
@@ -25,8 +28,18 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 const app = express()
 const Port = process.env.PORT || 3000
+const server = http.createServer(app)
 
-app.listen(Port, () => console.log('listening on port ' + Port))
+ const io = new Server(server, {
+   cors: {
+      origin: '*'
+   }
+})
+
+socketIO(io as any)
+
+
+server.listen(Port, () => console.log('listening on port ' + Port))
 app.use(cors(params))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

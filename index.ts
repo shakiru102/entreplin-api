@@ -7,6 +7,7 @@ import Auth from './routes/auth'
 import UserRoutes from './routes/user-profile'
 import SupportRoutes from './routes/support'
 import TransactionRoutes from './routes/transactions'
+import ChatRoutes from './routes/chats'
 
 env.config()
 
@@ -33,6 +34,7 @@ app.use('/api/auth', Auth)
 app.use('/api/user', UserRoutes)
 app.use('/api/support', SupportRoutes)
 app.use('/api/transaction', TransactionRoutes)
+app.use('/api/chat', ChatRoutes)
 
 
 app.get('/', (req: Request, res: Response) => res.send('server is running.'))

@@ -26,7 +26,6 @@ export interface SupportProps {
         imageId: string;
         url: string;
     }[];
-    createdAt: Date;
 }
 
 export interface TransactionProps {
@@ -45,7 +44,6 @@ export interface TransactionProps {
         imageId: any;
         url: any;
     }[];
-    createdAt: Date;
     country?: string;
     state?: string;
     authorId?: string;
@@ -53,3 +51,27 @@ export interface TransactionProps {
 
 }
 
+export interface ChatRoomProps {
+    members?: string[];
+    buisnessId?: string;
+}
+
+export interface MessagesProps {
+    roomId?: string;
+    senderId?: string;
+    text?: string;
+    attachments?: {
+        fileId?: string;
+        url?: string;
+        fileType?: string;
+    }[];
+    isRead?: boolean;
+}
+
+export interface NotificationsProps {
+    roomId?: string;
+    senderId?: string;
+    messageId?: string;
+    isRead?: boolean;
+    
+}

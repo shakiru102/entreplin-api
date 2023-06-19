@@ -1,5 +1,5 @@
 import joi from 'joi'
-import { SupportProps, SignUpProps, TransactionProps } from '../types'
+import { SupportProps, SignUpProps, TransactionProps, DiscussionsProps, ForumComment } from '../types'
 
 const signupSchema = joi.object<SignUpProps>({
     email: joi.string().email().required(),
@@ -59,6 +59,16 @@ const transactionSchema = joi.object<TransactionProps>({
     state: joi.string().required()
 })
 
+const forumPostSchema = joi.object<DiscussionsProps>({
+    forumId: joi.string().required(),
+    forumPost: joi.string().required()
+})
+
+const forumCommentSchema = joi.object<{text: string; postId: string}>({
+    text: joi.string().required(),
+    postId: joi.string().required()
+})
+
 
 
 export const signupValidate = (data: SignUpProps) => signupSchema.validate(data); //
@@ -71,3 +81,5 @@ export const updateUserPasswordValidate = (data: { currentPassword: string; newP
 export const supportSchemaValidate = (data: SupportProps) => supportSchema.validate(data); //
 export const updateSupportStatusValidate = (data: SupportProps) => updateSupportStatusSchema.validate(data); //
 export const transactionSchemaValidate = (data: TransactionProps) => transactionSchema.validate(data); //
+export const forumSchemaValidate = (data: DiscussionsProps) => forumPostSchema.validate(data); //
+export const commentPostSchemaValidate = (data: object) => forumCommentSchema.validate(data); //

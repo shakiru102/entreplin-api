@@ -57,4 +57,4 @@ const schema = new mongoose.Schema<TransactionProps>({
     }    
 }, { timestamps: true })
 
-export default mongoose.model('Transactions', schema)
+export default mongoose.model<TransactionProps>('Transactions', schema)

@@ -7,6 +7,7 @@ import Auth from './routes/auth'
 import UserRoutes from './routes/user-profile'
 import SupportRoutes from './routes/support'
 import TransactionRoutes from './routes/transactions'
+import ForumRoutes from './routes/forum'
 import ChatRoutes from './routes/chats'
 import http from 'http'
 import { Server } from "socket.io"
@@ -48,6 +49,7 @@ app.use('/api/user', UserRoutes)
 app.use('/api/support', SupportRoutes)
 app.use('/api/transaction', TransactionRoutes)
 app.use('/api/chat', ChatRoutes)
+app.use('/api/forum', ForumRoutes)
 
 
 app.get('/', (req: Request, res: Response) => res.send('server is running.'))

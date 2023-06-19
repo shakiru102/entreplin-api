@@ -71,10 +71,10 @@ export const getSupportPosts = async (req: Request, res: Response) => {
              ...(supportType && { supportType })
          })
          
-        if(!supports) throw new Error(`Could not find any support posts`)
+        if(!supports) return res.status(400).send({ error: `Could not find any support posts` })
         res.status(200).json(paginatedResult(supports, page, limit))
     } catch (error: any) {
-        res.status(400).send({ error: error.message })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -82,10 +82,10 @@ export const getSingleSupportPost = async (req: Request, res: Response) => {
     try {
         const supportId = req.params.supportId
         const support = await SupportModel.findOne({ _id: supportId})
-        if(!support) throw new Error(`Support not found`)
+        if(!support) return res.status(400).send({ error: `Support not found` })
         res.status(200).json(support)
     } catch (error: any) {
-        res.status(400).send({ error: error.message })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -93,10 +93,10 @@ export const updateSupportStatus = async (req: Request, res: Response) => {
     try {
         const { _id, supportType  }: SupportProps = req.body
         const isUpdated = await SupportModel.findOneAndUpdate({_id }, { supportType })
-        if(!isUpdated) throw new Error(`Could not update support status`)
+        if(!isUpdated) return res.status(400).send({ error: `Could not update support status` })
         res.status(200).send({ message: `Support status updated successfully`})
     } catch (error: any) {
-        res.status(400).send({ error: error.message })
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -107,10 +107,10 @@ export const getUserSupportPosts = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as any) || 1 
         const limit = parseInt(req.query.limit as any) || 10 
         const supports = await SupportModel.find({ authorId: userId })
-        if(!supports) throw new Error(`Could not find any support posts`)
+        if(!supports) return res.status(400).send({ error: `Could not find any support posts` })
         res.status(200).json(paginatedResult(supports, page, limit))
     } catch (error: any) {
-        
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -120,7 +120,7 @@ export const deleteSupportPost = async (req: Request, res: Response) => {
         const userId = req.userId
         const supportId = req.params.supportId
         const isDeleted = await SupportModel.findOneAndDelete({ _id: supportId }, { authorId: userId })
-        if(!isDeleted) throw new Error(`Entry does not exist`)
+        if(!isDeleted) return res.status(400).send({ error: `Entry does not exist` })
         if(isDeleted.images) {
         for (let image of isDeleted?.images){
             const { imageId } = image
@@ -131,6 +131,6 @@ export const deleteSupportPost = async (req: Request, res: Response) => {
         }
         res.status(200).send({ message: `Support post deleted successfully`})
     } catch (error: any) {
-        res.status(400).send({ error: error.message })
+        res.status(500).send({ error: error.message })
     }
 }

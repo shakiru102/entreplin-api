@@ -1,0 +1,310 @@
+import { Request, Response } from "express";
+import Forum from "../../models/Forum";
+import { DiscussionsProps, ForumComment, ForumNotificationsProps, ReplyProps } from "../../types";
+import ForumPost from "../../models/ForumPost";
+import ForumNotification from "../../models/ForumNotification";
+
+export const joinForum = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    try {
+        const forum = await Forum.find({})
+        if(forum.length === 0) {
+            const createForum = await Forum.create({ members: [ userId ] })
+            if(!createForum) return res.status(400).send({ error: "Could not create forum" })
+            return res.status(200).json(createForum)
+        }
+        const { _id } = forum[0]
+        const isMember = await Forum.findOne({
+            members: {
+                $in: [ userId ]
+            }
+        })
+        if(isMember) return res.status(200).send({ member: 'User alreay a member' })
+        const joinForum = await Forum.updateOne({ _id }, {
+            $push: {
+                members: userId
+            }
+        })
+        if(joinForum.modifiedCount === 0) res.status(400).send({ error: "Could not join"})
+        res.status(200).send(forum[0])
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const getForums = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId
+        const forums = await Forum.find({
+            members: {
+                $in: [userId]
+            }
+        })
+        if(forums.length === 0) res.status(400).send({ error: "Could not find forums" })
+        res.status(200).json(forums)
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const forumPost = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    const {
+        forumId,
+        forumPost
+    }: DiscussionsProps = req.body
+    try {
+        const forum = await Forum.findById(forumId)
+        const forumMessage = await ForumPost.create({
+            forumId,
+            authorId: userId,
+            forumPost,
+            unReadPostMembers: forum?.members?.filter(member => member !== userId),
+        })
+        if(!forumMessage) res.status(400).send({ error: "Could not send forum message" })
+        res.status(200).json(forumMessage)
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const postLike = async  (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    const postId = req.query.postId
+    if(!postId) return res.status(400).send({ error: 'Invalid postId query' })
+    try {
+        const forumPost = await ForumPost.findById(postId)
+        if(!forumPost) return res.status(400).send({ error: 'Could not find forum post" id: ' + postId })
+        
+        const likedPost = forumPost.likes?.find(item => item === userId)
+        if(likedPost) {
+            const unlikepost = await ForumPost.updateOne({ _id: postId }, {
+                $pull: {
+                    likes: userId
+                }
+            }) 
+            if(unlikepost.modifiedCount === 0) return res.status(400).send({ error: 'Could not unlike post" id: ' + postId })
+            return res.status(200).send({ message: 'Post is unliked.' })
+        }
+       
+        const likePost = await ForumPost.updateOne({ _id: postId }, {
+            $push: {
+                likes: userId
+            }
+        })
+
+        if(likePost.modifiedCount === 0) return res.status(400).send({ error: "Could not like post" })
+        res.status(200).send({ message: 'Post is liked' })
+
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const creatComment = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    const { text, postId } = req.body
+    try {
+        const comment: ForumComment = {
+            authorId: userId,
+            text
+        }
+        const forumPost = await ForumPost.updateOne({ _id: postId}, {
+            $push: {
+                comments: comment
+            }
+        })
+        if(!forumPost) return res.status(400).send({ error: " Could not create comment" })
+        res.status(200).send({ message: "Comment created" })
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const getForumPosts = async (req: Request, res: Response) => {
+    try {
+        const forumId = req.params.forumId
+        const posts = await ForumPost.find({ forumId })
+        res.status(200).json(posts)
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const commentActions = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    const postId = req.query.postId
+    const commentId = req.query.commentId
+
+    if(!postId || !commentId ) return res.status(400).send({ error: "post id or comment id is not valid" })
+
+    try {
+        const comments = await ForumPost.findById(postId)
+        const isCommentSaved = comments?.comments?.find(comment => comment._id == commentId)
+        const liked = isCommentSaved?.likes?.find(item => item === userId)
+        
+        if (liked) {
+            const unlike = await ForumPost.updateOne({ _id: postId, "comments._id": commentId }, {
+                $pull: {
+                    "comments.$.likes": userId
+                }
+            })
+            if(unlike.modifiedCount === 0) return res.status(400).send({ error: "Can not unlike comment" })
+            return res.status(200).send({ message: "Comment unliked" })
+        }
+        const like = await ForumPost.updateOne({ _id: postId, "comments._id": commentId }, {
+            $push: {
+                "comments.$.likes": userId
+            }
+        })
+        if(like.modifiedCount === 0) return res.status(400).send({ error: "Can not like comment" })
+            return res.status(200).send({ message: "Comment liked" })
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const commentReply = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = req.userId
+    const commentId = req.query.commentId
+    const postId = req.query.postId
+    if(!postId || !commentId ) return res.status(400).send({ error: "post id or comment id is not valid" })
+
+    try {
+        const { text }: ReplyProps = req.body 
+        if(!text) return res.status(400).send({ error: "text is required" })
+        const reply: ReplyProps = {
+            authorId: userId,
+            text,
+        }
+        const post = await ForumPost.findById(postId)
+        if(!post) return res.status(400).send({ error: "Post not found" })
+
+        const replied = await ForumPost.updateOne({ _id: postId, "comments._id": commentId }, {
+            $push: {
+                "comments.$.reply": reply
+            }
+        })
+        if(replied.modifiedCount === 0) return res.status(400).send({ error: "Could not reply comment" })
+        res.status(200).send({ message: "comment replied" })
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const replyAction = async (req: Request, res: Response) => {
+    try {
+         // @ts-ignore
+        const userId = req.userId
+        const postId = req.query.postId
+        const commentId = req.query.commentId
+        const replyId = req.query.replyId
+        const post = await ForumPost.findById(postId)
+        if(!post) return res.status(400).send({ error: "Could not find post with id:" + postId})
+        const comment = post.comments?.find(commentsId => commentsId._id == commentId)
+        const reply = comment?.reply?.find(repliesId => repliesId._id == replyId)
+        const liked = reply?.likes?.find(item => item === userId)
+        
+        if(liked) {
+            const unlike = await ForumPost.updateOne({
+                _id: postId,
+                "comments._id": commentId,
+                "comments.reply._id": replyId
+            },{
+                $pull: {
+                    "comments.$[i].reply.$[j].likes": userId
+                }
+            }, {
+                arrayFilters: [
+                    { "i._id": commentId },
+                    { "j._id": replyId }
+                ]
+            })
+
+            if(unlike.modifiedCount === 0) return res.status(400).send({ error: "Could not update reply" })
+            return res.status(200).send({ message: "reply unliked" })
+        }
+        const unlike = await ForumPost.updateOne({
+            _id: postId,
+            "comments._id": commentId,
+            "comments.reply._id": replyId
+        },{
+            $push: {
+                "comments.$[i].reply.$[j].likes": userId
+            }
+        }, {
+            arrayFilters: [
+                { "i._id": commentId },
+                { "j._id": replyId }
+            ]
+        })
+
+        if(unlike.modifiedCount === 0) return res.status(400).send({ error: "Could not update reply" })
+        return res.status(200).send({ message: "reply liked" })
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const forumPostNotifications = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId
+        const forumId = req.params.forumId
+        const notifications  = await ForumPost.find({ 
+            unReadPostMembers: {
+                $in: userId 
+            },
+            forumId
+         }, { comments: 0, forumPost: 0, likes: 0, unReadPostMembers: 0 })
+         res.status(200).json(notifications)
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const readForumPostNotifications = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId
+        const forumId = req.params.forumId
+        const isRead = await ForumPost.updateMany({ _id: forumId }, {
+            $pull: {
+                unReadPostMembers: userId
+            }
+        })
+        res.status(200).json(isRead)
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
+}
+
+export const createCommentNotifications = async (req: Request, res: Response) => {
+   try {
+    //  @ts-ignore
+    const userId = req.userId
+    const {
+        forumId,
+        message,
+        postId,
+        receiverId,
+    }: ForumNotificationsProps = req.body
+    const notification = await ForumNotification.create({
+        forumId,
+        message,
+        postId,
+        receiverId,
+        senderId: userId
+    })
+    res.status(200).json(notification)
+   } catch (error: any) {
+    res.status(500).send(error.message)
+   }
+}

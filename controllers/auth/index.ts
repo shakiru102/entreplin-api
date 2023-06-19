@@ -56,7 +56,7 @@ export const verifyEmaiil = async (req: Request, res: Response) => {
 
 export const signinWithGoogle = async (req: Request, res: Response) => {
    try {
-      const authUser = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${req.body.accesToken}`)
+      const authUser = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${req.body.accessToken}`)
       console.log(authUser);
       if(authUser.status = 200 ){
          if(!authUser.data.email) return res.status(400).send({ error: 'User email not added to google scope' });
@@ -79,7 +79,7 @@ export const signinWithGoogle = async (req: Request, res: Response) => {
 
 export const signinWithFacebook = async (req: Request, res: Response) => {
    try {
-      const authUser = await axios.get(`https://graph.facebook.com/me?fields= "name,email,picture&access_token=${req.body.accesToken}`)
+      const authUser = await axios.get(`https://graph.facebook.com/me?fields= "name,email,picture&access_token=${req.body.accessToken}`)
       console.log(authUser);
       if(authUser.status = 200 ){
          if(!authUser.data.email) return res.status(400).send({ error: 'User email not added to facebook scope' });

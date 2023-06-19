@@ -61,7 +61,7 @@ export const getBuisnessTransaction = async (req: Request, res: Response) => {
         const transactions = await TransactionModel.find({
                     country: { $regex: country, $options: 'i' },
                     ...(transactionType && { transactionType })
-                }, { savedUsers: 0 })
+                })
         if(!transactions) throw new Error(`No transactions found`)
         res.status(200).json(paginatedResult(transactions, page, limit))
     } catch (error: any) {
@@ -72,7 +72,7 @@ export const getBuisnessTransaction = async (req: Request, res: Response) => {
 
 export const singleBuisnessTransaction = async (req: Request, res: Response) => {
     try {
-        const transaction = await TransactionModel.findById({ _id: req.params.transactionId }, {savedUsers: 0})
+        const transaction = await TransactionModel.findById({ _id: req.params.transactionId })
         if(!transaction) throw new Error(`No transaction found`)
         res.status(200).json(transaction)
         
@@ -103,17 +103,25 @@ export const deleteBuisnessTransaction = async (req: Request, res: Response) => 
     }
 }
 
-export const saveBuinessTransaction = async (req: Request, res: Response) => {
+export const buinessTransactionAction = async (req: Request, res: Response) => {
     try {
         const transactionId = req.params.transactionId
         // @ts-ignore
         const userId = req.userId
-        const savedTransaction = await TransactionModel.findOne({ 
-            savedUsers: {
-                $in: userId
-            }
-         })
-         if(savedTransaction) return res.status(200).send({ message: 'Transaction already saved' })
+        const transaction = await TransactionModel.findById(transactionId)
+         if(!transaction) return res.status(400).send({ error: 'Could not get transaction post' })
+         const saveTransaction = transaction.savedUsers?.find(item => item === userId)
+         if(saveTransaction) {
+            const isUnSaved = await TransactionModel.updateOne({
+                _id: transactionId
+            }, { 
+                $pull: {
+                    savedUsers: userId
+                }
+             })
+            if(!isUnSaved) return res.status(400).send({ error: 'Can not unsave post' })
+            return res.status(200).send({ message: 'Buisness transaction is unsaved' })
+         }
         const isSaved = await TransactionModel.updateOne({ _id: transactionId }, {
             $push: {
                 savedUsers: userId
@@ -138,25 +146,6 @@ export const userSavedBuisnessTransaction = async (req: Request, res: Response) 
         if(!transactions) return res.status(400).send({ error: 'No saved post found' })
         res.status(200).json(transactions)
     } catch (error: any) {
-     res.status(500).send(error)   
-    }
-}
-
-export const unsaveBuisnessTransaction = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.userId
-        const transactionId = req.params.transactionId
-        const isUpdated = await TransactionModel.updateOne({
-            _id: transactionId
-        }, { 
-            $pull: {
-                savedUsers: userId
-            }
-         })
-        if(!isUpdated) return res.status(400).send({ error: 'Cannot unsave post' })
-        res.status(200).send({ message: 'Post as been unsaved' })
-    } catch (error: any) {
-     res.status(500).send(error)   
+     res.status(500).send(error.message)   
     }
 }

@@ -68,10 +68,39 @@ export interface MessagesProps {
     isRead?: boolean;
 }
 
-export interface NotificationsProps {
-    roomId?: string;
+export interface ReplyProps {
+    likes?: string[];
+    text?: string;
+    createdAt?: Date;
+    authorId?: string;
+    _id?: string;
+}
+
+export interface ForumComment {
+    likes?: string[];
+    text?: string;
+    createdAt?: Date;
+    authorId?: string;
+    _id?: string;
+    reply?: ReplyProps[]
+}
+
+export interface DiscussionsProps {
+   forumPost?: string;
+   likes?: string[];
+   comments?: ForumComment[];
+   authorId?: string;
+   unReadPostMembers?: string[];
+   forumId?: string;
+}
+
+export interface ForumNotificationsProps {
+    forumId?: string;
+    commentId?: string;
+    replyId?: string;
     senderId?: string;
-    messageId?: string;
-    isRead?: boolean;
-    
+    receiverId?: string;
+    isSeen?: boolean;
+    message?: string;
+    postId?: string;
 }

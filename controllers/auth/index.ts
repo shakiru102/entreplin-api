@@ -61,7 +61,13 @@ export const signinWithGoogle = async (req: Request, res: Response) => {
       if(authUser.status = 200 ){
          if(!authUser.data.email) return res.status(400).send({ error: 'User email not added to google scope' });
          const user = await UserModel.findOne({ email: authUser.data.email})
-         if(user) return res.status(200).send({ message: 'User is authenticated' })
+         if(user) {
+            const token = encode(user.email)
+            return res.status(200).send({
+                     message: 'User is authenticated',
+                     token
+                  })
+         } 
             const createUser = await UserModel.create({ 
                email: authUser.data.email,
                fullName: authUser.data.name,
@@ -69,7 +75,11 @@ export const signinWithGoogle = async (req: Request, res: Response) => {
                emailVerified: true
             })
             if(!createUser) return res.status(400).send({ message: 'Could not create user' })
-            res.status(200).send({ message:'User created' })
+            const token = encode(createUser.email)
+            res.status(200).send({
+               message: 'User is authenticated',
+               token
+             })
       }
       
    } catch (error: any) {
@@ -84,7 +94,13 @@ export const signinWithFacebook = async (req: Request, res: Response) => {
       if(authUser.status = 200 ){
          if(!authUser.data.email) return res.status(400).send({ error: 'User email not added to facebook scope' });
          const user = await UserModel.findOne({ email: authUser.data.email})
-         if(user) return res.status(200).send({ message: 'User is authenticated' })
+         if(user) {
+            const token = encode(user.email)
+            return res.status(200).send({
+                     message: 'User is authenticated',
+                     token
+                  })
+         } 
             const createUser = await UserModel.create({ 
                email: authUser.data.email,
                fullName: authUser.data.name,
@@ -92,7 +108,11 @@ export const signinWithFacebook = async (req: Request, res: Response) => {
                emailVerified: true
             })
             if(!createUser) return res.status(400).send({ message: 'Could not create user' })
-            res.status(200).send({ message:'User created' })
+            const token = encode(createUser.email)
+            res.status(200).send({
+               message: 'User is authenticated',
+               token
+             })
       }
       
    } catch (error: any) {

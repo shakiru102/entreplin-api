@@ -1,5 +1,5 @@
 import { Socket } from "socket.io"
-import { DiscussionsProps, MessagesProps } from "../types";
+import { DiscussionsProps, ForumNotificationsProps, MessagesProps } from "../types";
 import UserModel from "../models/UserModel";
 
 interface IMessageProps extends MessagesProps {
@@ -34,17 +34,15 @@ export default (io: Socket) => {
 
 
 
-    // Dicussion Forum
-
-    // initialize Forum
-    socket.on('dicussion-initialize', (res: DiscussionsProps['forumId']) => {
-        socket.join(res as string)
-    })
-  //  Send Post Notification to Forum
-    socket.on('discussion', async (res: { forumId: string; authorName: string }) => {
-         const { forumId, authorName } = res
-          const message = `${ authorName } created a new discussion`
-          socket.broadcast.to(forumId as string).emit('discussion-post', message)
+    //   Forum Activity Notification
+    socket.on('activity-initiated', (res: ForumNotificationsProps) => {
+      if(res.receiverId) {
+        for(let userId of res.receiverId) {
+          const isUser = onlineUsers.find(user => user.userId == userId.userId)
+          if(isUser) io.to(isUser.onlineId).emit('acitvity', res)
+        }
+      }
+        
     })
 
 

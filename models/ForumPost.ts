@@ -47,9 +47,6 @@ const schema = new mongoose.Schema<DiscussionsProps>({
     },
     forumId: {
         type: String
-    },
-    unReadPostMembers: {
-        type: Array
     }
 }, { timestamps: true });
 

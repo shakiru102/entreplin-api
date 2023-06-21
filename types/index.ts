@@ -90,7 +90,7 @@ export interface DiscussionsProps {
    likes?: string[];
    comments?: ForumComment[];
    authorId?: string;
-   unReadPostMembers?: string[];
+//    unReadPostMembers?: string[];
    forumId?: string;
 }
 
@@ -98,9 +98,10 @@ export interface ForumNotificationsProps {
     forumId?: string;
     commentId?: string;
     replyId?: string;
-    senderId?: string;
-    receiverId?: string;
-    isSeen?: boolean;
+    receiverId?: {
+        userId?: string;
+        isSeen?: boolean;
+    }[];
     message?: string;
     postId?: string;
 }

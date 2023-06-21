@@ -8,25 +8,26 @@ const schema = new mongoose.Schema<ForumNotificationsProps>({
     forumId: {
         type: String
     },
-    isSeen: {
-        type: Boolean,
-        default: false
-    },
     message: {
         type: String
     },
-    receiverId: {
-        type: String
-    },
+    receiverId: [
+        {
+            userId: {
+                type: String
+            },
+            isSeen: {
+                type: Boolean,
+                default: false
+            }
+        }
+    ],
     replyId: {
-        type: String
-    },
-    senderId: {
         type: String
     },
     postId: {
         type: String
     }
-})
+}, { timestamps: true });
 
 export default mongoose.model<ForumNotificationsProps>("forum notifications", schema)

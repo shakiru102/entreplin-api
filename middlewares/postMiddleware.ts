@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express"
-import { commentPostSchemaValidate, forumSchemaValidate, supportSchemaValidate, transactionSchemaValidate, updateSupportStatusValidate } from "../utils/joi"
+import { commentPostSchemaValidate, forumActivityNotificationSchemaValidate, forumSchemaValidate, supportSchemaValidate, transactionSchemaValidate, updateSupportStatusValidate } from "../utils/joi"
 
 export const supportSchemaValidations = (req: Request, res: Response, next: NextFunction) => {
     const { error } = supportSchemaValidate(req.body)
@@ -24,6 +24,13 @@ export const discussionPostValidations = (req: Request, res: Response, next: Nex
     if(error) return res.status(400).send({ error: error.details[0].message })
     next()   
 }
+
+export const forumActivityNotificationValidations = (req: Request, res: Response, next: NextFunction) => {
+    const { error } = forumActivityNotificationSchemaValidate(req.body)
+    if(error) return res.status(400).send({ error: error.details[0].message })
+    next()   
+}
+
 
 export const commentPostValidations = (req: Request, res: Response, next: NextFunction) => {
     const { error } = commentPostSchemaValidate(req.body)

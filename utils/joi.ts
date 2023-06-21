@@ -1,5 +1,5 @@
 import joi from 'joi'
-import { SupportProps, SignUpProps, TransactionProps, DiscussionsProps, ForumComment } from '../types'
+import { SupportProps, SignUpProps, TransactionProps, DiscussionsProps, ForumComment, ForumNotificationsProps } from '../types'
 
 const signupSchema = joi.object<SignUpProps>({
     email: joi.string().email().required(),
@@ -69,6 +69,18 @@ const forumCommentSchema = joi.object<{text: string; postId: string}>({
     postId: joi.string().required()
 })
 
+const forumActivityNotificationSchema = joi.object<ForumNotificationsProps>({
+    forumId: joi.string().required(),
+    message: joi.string().required(),
+    postId: joi.string().required(),
+    receiverId: joi.array().items(joi.object({
+         userId: joi.string().required()
+    })).required(),
+    commentId: joi.string(),
+    replyId: joi.string()
+})
+
+
 
 
 export const signupValidate = (data: SignUpProps) => signupSchema.validate(data); //
@@ -83,3 +95,4 @@ export const updateSupportStatusValidate = (data: SupportProps) => updateSupport
 export const transactionSchemaValidate = (data: TransactionProps) => transactionSchema.validate(data); //
 export const forumSchemaValidate = (data: DiscussionsProps) => forumPostSchema.validate(data); //
 export const commentPostSchemaValidate = (data: object) => forumCommentSchema.validate(data); //
+export const forumActivityNotificationSchemaValidate = (data: ForumNotificationsProps) => forumActivityNotificationSchema.validate(data)

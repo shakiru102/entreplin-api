@@ -57,12 +57,10 @@ export const forumPost = async (req: Request, res: Response) => {
         forumPost
     }: DiscussionsProps = req.body
     try {
-        const forum = await Forum.findById(forumId)
         const forumMessage = await ForumPost.create({
             forumId,
             authorId: userId,
             forumPost,
-            unReadPostMembers: forum?.members?.filter(member => member !== userId),
         })
         if(!forumMessage) res.status(400).send({ error: "Could not send forum message" })
         res.status(200).json(forumMessage)
@@ -253,31 +251,14 @@ export const replyAction = async (req: Request, res: Response) => {
     }
 }
 
-export const forumPostNotifications = async (req: Request, res: Response) => {
+export const updateForumActivityNotification = async (req: Request, res: Response) => {
     try {
         // @ts-ignore
         const userId = req.userId
-        const forumId = req.params.forumId
-        const notifications  = await ForumPost.find({ 
-            unReadPostMembers: {
-                $in: userId 
-            },
-            forumId
-         }, { comments: 0, forumPost: 0, likes: 0, unReadPostMembers: 0 })
-         res.status(200).json(notifications)
-    } catch (error: any) {
-        res.status(500).send(error.message)
-    }
-}
-
-export const readForumPostNotifications = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.userId
-        const forumId = req.params.forumId
-        const isRead = await ForumPost.updateMany({ _id: forumId }, {
-            $pull: {
-                unReadPostMembers: userId
+        const notificationId = req.params.notificationId
+        const isRead = await ForumNotification.updateOne({ _id: notificationId, "receiverId.userId": userId }, {
+            $set: {
+                "receiverId.$.isSeen": true
             }
         })
         res.status(200).json(isRead)
@@ -286,25 +267,37 @@ export const readForumPostNotifications = async (req: Request, res: Response) =>
     }
 }
 
-export const createCommentNotifications = async (req: Request, res: Response) => {
-   try {
-    //  @ts-ignore
+export const forumActivityeNotifications = async (req:Request, res: Response) => {
+    try {
+    const postLikeNotification = await ForumNotification.create(req.body)
+    if(!postLikeNotification) return res.status(400).send({ error: "Could not create notification" })
+    res.status(200).json(postLikeNotification)
+    } catch (error: any) {
+       res.status(500).send(error.message)  
+    }
+}
+
+export const getForumActivityeNotifications = async (req:Request, res: Response) => {
+    // @ts-ignore
     const userId = req.userId
-    const {
-        forumId,
-        message,
-        postId,
-        receiverId,
-    }: ForumNotificationsProps = req.body
-    const notification = await ForumNotification.create({
-        forumId,
-        message,
-        postId,
-        receiverId,
-        senderId: userId
-    })
-    res.status(200).json(notification)
-   } catch (error: any) {
-    res.status(500).send(error.message)
-   }
+    const forumId = req.params.forumId
+    try {
+        const notifications = await ForumNotification.find({
+            forumId,
+            "receiverId.userId": userId
+        })
+        res.status(200).json(notifications)
+    } catch (error: any) {
+       res.status(500).send(error.message) 
+    }
+}
+
+export const getSingleForumPost = async (req:Request, res: Response) => {
+    try {
+        const post = await ForumPost.findById(req.params.postId)
+        if(!post) return res.status(400).send({ error: "No post found" })
+        res.status(200).json(post)
+    } catch (error: any) {
+        res.status(500).send(error.message)
+    }
 }

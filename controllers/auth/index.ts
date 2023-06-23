@@ -17,10 +17,10 @@ export const signup = async (req: Request, res: Response) => {
          'Entreplin',
          `Hi there, this is your verification code. ${code}`
          )
-         if(status !== 200) res.status(400).send({ error: message, details: "Email not verified" })
+         if(status !== 200) res.status(400).send({ error: message })
     res.status(200).send({ code })
    } catch (error: any) {
-    res.status(500).send({ error: error })
+    res.status(error.status).send({ error: error })
    }
 } 
 

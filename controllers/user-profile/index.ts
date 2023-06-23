@@ -61,12 +61,12 @@ export const updatePassword = async (req: Request, res: Response) => {
      // @ts-ignore
      const userId = req.userId
      const user = await UserModel.findById({ _id: userId})
-     if(!user) return res.status(400).send({ message: 'Could not update password' })
+     if(!user) return res.status(400).send({ error: 'Could not update password' })
      const isPassword = await decodePassword(req.body.currentPassword, user.password)
-     if(!isPassword) return res.status(400).send({ message: 'Incorrect password' })
+     if(!isPassword) return res.status(400).send({ error: 'Incorrect password' })
      const updateUserPassword = await UserModel.updateOne({ _id: user._id }, { password: passwordHash(req.body.newPassword) })
-     if(updateUserPassword.modifiedCount === 0) return res.status(400).send({ message: 'Could not update password' })
-     res.status(200).send({ error: 'Password updated successfully' })
+     if(updateUserPassword.modifiedCount === 0) return res.status(400).send({ error: 'Could not update password' })
+     res.status(200).send({ message: 'Password updated successfully' })
    } catch (error: any) {
     res.status(500).send({ error: error.message })
    }

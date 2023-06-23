@@ -1,4 +1,3 @@
-import { SignUpProps } from "../types";
 import bcrypt from 'bcrypt'
 
 export const passwordHash = (password: string) => {

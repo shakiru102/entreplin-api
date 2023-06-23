@@ -16,17 +16,18 @@ export const createUserMiddleware = async (req: Request, res: Response, next: Ne
     try {
      const { email, password, fullName }: SignUpProps = req.body
      const authUser = await UserModel.findOne({ email })
-     if(authUser) throw new Error('User already exists')
+     if(authUser) return res.status(400).send({ error: "User already exists" })
+     const hashedPassword = await passwordHash(password)
      const user = await UserModel.create({ 
          email, 
-         password: passwordHash(password),
+         password: hashedPassword,
          fullName
       })
     //   @ts-ignore
      req.user = user
      next()
     } catch (error: any) {
-     res.status(400).send({ error: error.message })
+     res.status(500).send({ error: error.message })
     }
  } 
 

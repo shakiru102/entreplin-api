@@ -43,7 +43,8 @@ export const getUserDetails = async (req: Request, res: Response) => {
 }
 
 export const updateUserProfile = async (req: Request, res: Response) => {
-      // @ts-ignore
+      try {
+        // @ts-ignore
       const userId = req.userId
       const userDetaiils = {
         ...(req.body.fullName && { fullName: req.body.fullName }),
@@ -53,7 +54,10 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       }
     const user = await UserModel.findOneAndUpdate({ _id: userId }, userDetaiils)
     if(!user) return res.status(400).send({ message: 'Could not update user profile' })
-    res.status(200).send({ error: 'User profile updated successfully' })
+    res.status(200).send({ message: 'User profile updated successfully' })
+      } catch (error: any) {
+        res.status(500).send({ error: error.message })
+      }
 }
 
 export const updatePassword = async (req: Request, res: Response) => {
@@ -80,11 +84,9 @@ export const uploadUserImage = async (req: Request, res: Response) => {
     await deleteFile(userId)
     const { error, savedFile } = await saveFile(req.file.path, 'users', userId)
     if(error) throw new Error(error)
-    if(savedFile) {
-        const isUpdated = await UserModel.findOneAndUpdate({ _id: userId }, { picture: savedFile.secure_url })
+        const isUpdated = await UserModel.findOneAndUpdate({ _id: userId }, { picture: savedFile?.secure_url })
         if(!isUpdated) throw new Error('Could not update user image')
         res.status(200).send({ message: 'User image updated successfully' })
-    }
    
     } catch (error: any) {
         res.status(400).send({ error: error.message })

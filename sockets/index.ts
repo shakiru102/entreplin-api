@@ -39,7 +39,7 @@ export default (io: Socket) => {
       if(res.receiverId) {
         for(let userId of res.receiverId) {
           const isUser = onlineUsers.find(user => user.userId == userId.userId)
-          if(isUser) io.to(isUser.onlineId).emit('acitvity', res)
+          if(isUser) io.to(isUser.onlineId).emit('activity', res)
         }
       }
         

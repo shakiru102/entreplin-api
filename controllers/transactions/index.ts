@@ -146,6 +146,6 @@ export const userSavedBuisnessTransaction = async (req: Request, res: Response) 
         if(!transactions) return res.status(400).send({ error: 'No saved post found' })
         res.status(200).json(transactions)
     } catch (error: any) {
-     res.status(500).send(error.message)   
+     res.status(500).send({ error: error.message })   
     }
 }

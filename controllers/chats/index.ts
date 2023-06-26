@@ -25,7 +25,7 @@ export const initiateChatRoom = async (req: Request, res: Response) => {
         if(!chatroom) return res.status(400).send({ error: 'Could not create chat'})
         return res.status(200).json(chatroom)
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -41,7 +41,7 @@ export const listOfChatrooms = async (req: Request, res: Response) => {
             if(!chatrooms) return res.status(400).send({ error: 'Could not find chatrooms'})
             return res.status(200).json(chatrooms)
         } catch (error: any) {
-            res.status(500).send(error.message)
+            res.status(500).send({ error: error.message })
         }
 }
 
@@ -74,7 +74,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     if(!message) return res.status(400).send({error: 'Could not create message'})
     return res.status(200).json(message)
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -86,7 +86,7 @@ export const listRoomMessages = async (req: Request, res: Response) => {
      if(!messages) return res.status(400).send({ error: 'Could not find messages'})
      return res.status(200).json(messages)
    } catch (error: any) {
-     res.status(500).send(error.message)
+     res.status(500).send({ error: error.message })
    }
 }
 
@@ -105,7 +105,7 @@ export const readMessageNotification = async (req: Request, res: Response) => {
        if(isUpdated.modifiedCount === 0) return res.status(400).send({ error: 'Message not updated' })
        return res.status(200).send({ message: 'Message read' })
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -122,7 +122,7 @@ export const unReadMessageNotification = async (req: Request, res: Response) => 
         const filteredNotifications = notifications.filter(notification => notification.senderId !== userId)
         res.status(200).json(filteredNotifications)
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -134,7 +134,7 @@ export const lastRoomMessage = async (req: Request, res: Response) => {
         const lastMassage = message.slice(-1)
         return res.status(200).json(lastMassage[0])
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({ error: error.message })
     }
 }
 
@@ -163,6 +163,6 @@ export const allUnreadMessageNotifications = async (req: Request, res: Response)
         }
         res.status(200).json(notifications)
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({ error: error.message })
     }
 }

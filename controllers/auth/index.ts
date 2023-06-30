@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { generateCode } from "../../utils/nanoid";
-import { sendMail } from "../../utils/mailSender";
+import { transporter } from "../../utils/mail";
 import { SignUpProps } from "../../types";
 import UserModel from "../../models/UserModel";
 import { encode } from "../../utils/token";
@@ -13,12 +13,16 @@ export const signup = async (req: Request, res: Response) => {
     // @ts-ignore
       const user: SignUpProps = req.user
       const code = await generateCode()
-      const { status, message } = await sendMail(user.email, 
-         'Entreplin',
-         `Hi there, this is your verification code. ${code}`
-         )
-         if(status !== 200) res.status(400).send({ error: message })
-    res.status(200).send({ code })
+      transporter.sendMail({
+         from: `${process.env.EMAIL_SENDER} <${process.env.APP_USER}>`,
+         subject: 'Entreplin',
+         to: user.email,
+         html: `<p>Hi there, this is your verification code:  <strong>${code}</strong></p>`,
+     }, (err, response) => {
+      if(err) return res.status(400).send({ error: err });
+      res.status(200).send({ code })
+     })
+    res.status(200).send({ message: "The verification code has been sent to your mail", code })
    } catch (error: any) {
     res.status(error.status).send({ error: error })
    }
@@ -26,16 +30,20 @@ export const signup = async (req: Request, res: Response) => {
 
 export const resendCode = async (req: Request, res: Response) => {
    const details = req.body
-   try {
+   try {      
       const user = await UserModel.findOne({ email: details.email})
       if(!user) throw new Error(`User not found`)
       const code = await generateCode()
-      const { status, message } = await sendMail(user.email, 
-         'Entreplin',
-         `Hi there, this is your verification code. ${code}`
-         )
-         if(status!== 200) throw new Error(message)
-         res.status(200).send({ code })
+         transporter.sendMail({
+            from: `${process.env.EMAIL_SENDER} <${process.env.APP_USER}>`,
+            subject: 'Entreplin',
+            to: user.email,
+            html: `<p>Hi there, this is your verification code: <strong>${code}</strong></p>`,
+        }, (err, response) => {
+         if(err) return res.status(400).send({ error: err });
+         res.status(200).send({ message: "The verification code has been sent to your mail", code })
+        })
+         
    } catch (error: any) {
          res.status(400).send({ error: error.message })
    }
@@ -125,11 +133,15 @@ export const forgotPasswordConfirmationEmail = async (req: Request, res: Respons
       const isUser = await UserModel.findOne({ email })
       if(!isUser) throw new Error('User not found')
       const code = await generateCode()
-      const { status, message } = await sendMail(email, 
-         'Entreplin',
-         `Hi there, this is your verification code. ${code}`
-         )
-         if(status !== 200) throw new Error(message)
+      transporter.sendMail({
+         from: `${process.env.EMAIL_SENDER} <${process.env.APP_USER}>`,
+         subject: 'Entreplin',
+         to: email,
+         html: `<p>Hi there, this is your verification code: <strong>${code}</strong></p>`,
+     }, (err, response) => {
+      if(err) return res.status(400).send({ error: err });
+      res.status(200).send({ message: "The verification code has been sent to your mail", code })
+     })
       const token = encode(email)
       res.status(200).send({
          message: 'Email sent',

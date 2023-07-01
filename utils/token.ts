@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
 import { SignUpProps } from '../types'
 
-export const encode = (email: string): string => {
+export const encode = (id: string): string => {
     return jwt
             .sign(
-                { email }, 
+                { id }, 
                 process.env.JWT_SECRET as any,
                 { expiresIn: '2d' }
             )

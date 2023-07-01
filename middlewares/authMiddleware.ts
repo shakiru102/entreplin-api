@@ -3,7 +3,6 @@ import { emailValidate, signinValidate, signupValidate, tokenValidate } from "..
 import { SignUpProps } from "../types";
 import UserModel from "../models/UserModel";
 import { passwordHash } from "../utils/hashPassword";
-import axios from "axios";
 import { decode } from "jsonwebtoken";
 
 export const signupValidation = (req: Request, res: Response, next: NextFunction) => {
@@ -51,45 +50,25 @@ export const createUserMiddleware = async (req: Request, res: Response, next: Ne
 
  export const auth = async (req: Request, res: Response, next: NextFunction) => {
 
-  const token = req.headers.authorization?.replace('Bearer ', '')
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '')
   if(!token) return res.status(401).send({ error: 'No token provided' })
-  const authUser = async (email: string) => {
-        const user = await UserModel.findOne({ email });
+  const authUser = async (id: string) => {
+        const user = await UserModel.findById(id, { country: 0, email: 0, password: 0, fullName: 0, picture: 0, phoneNumber: 0, state: 0 });
         return user;
       }
 
-      await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
-      .then(async (response) => {
-           const { email } = response.data
-           const user = await authUser(email)
-           if (!user) return res.status(401).send({ error: 'User unauthorized' })  
-          //  @ts-ignore
-           req.userId = user.id
-           next()
-      })
-
-      .catch(async () => {
-          await axios.get(`https://graph.facebook.com/me?fields= "email&access_token=${token}`)
-          .then(async (response) => {
-              const { email } = response.data
-              const user = await authUser(email)
-              if (!user) return res.status(401).send({ error: 'User unauthorized'})  
-              //  @ts-ignore
-              req.userId = user.id
-              next()
-          })
-
-         .catch(async () => {
-             const decodeToken: any = decode(token)
-             if(!decodeToken) return res.status(401).send({ error: 'User unauthorized' })
-             const user = await authUser(decodeToken.email)
-             if(!user) return res.status(401).send({ error: 'User unauthorized' })
-             if(!user.emailVerified) return res.status(401).send({ error: 'User unauthorized' })
-             //  @ts-ignore
-            req.userId = user.id
-             next()
-         })
-      })
+      const decodeToken: any = decode(token)
+      if(!decodeToken) return res.status(401).send({ error: 'User unauthorized' })
+      const user = await authUser(decodeToken.id)
+      if(!user) return res.status(401).send({ error: 'User unauthorized' })
+      if(!user.emailVerified) return res.status(401).send({ error: 'User unauthorized' })
+      //  @ts-ignore
+    req.userId = user.id
+      next()
+  } catch (error: any) {
+   res.status(500).send({ error: error.message })
+  }
       
  }
 

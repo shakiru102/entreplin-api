@@ -28,18 +28,14 @@ export const updateUserLocation = async (req: Request, res: Response) => {
 }
 
 export const getUserDetails = async (req: Request, res: Response) => {
-    // @ts-ignore
-    const user = await UserModel.findOne({ _id: req.userId })
-    if(!user) return res.status(400).send({ error: 'Could not get user details' })
-    const {
-        fullName,
-        email,
-        country,
-        state,
-        phoneNumber,
-        picture
-    } = user
-    res.status(200).send({ fullName, email, country, state, phoneNumber, picture: picture ? picture : '' })
+   try {
+     // @ts-ignore
+     const user = await UserModel.findById(req.userId, { password: 0 })
+     if(!user) return res.status(400).send({ error: 'Could not get user details' })
+     res.status(200).json(user)
+   } catch (error: any) {
+    res.status(500).send({ error: error.message })
+   }
 }
 
 export const updateUserProfile = async (req: Request, res: Response) => {

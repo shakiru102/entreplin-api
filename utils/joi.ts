@@ -3,7 +3,7 @@ import { SupportProps, SignUpProps, TransactionProps, DiscussionsProps, ForumCom
 
 const signupSchema = joi.object<SignUpProps>({
     email: joi.string().email().required(),
-    password: joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).min(8),
+    password: joi.string().required().min(8),
     fullName: joi.string().required()
 })
 
@@ -11,7 +11,7 @@ const emailValidationSchema = joi.object<SignUpProps>({
     email: joi.string().email().required()
 })
 const passwordValidationSchema = joi.object<SignUpProps>({
-    password: joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).min(8)
+    password: joi.string().required().min(8)
 })
 const locationSchema = joi.object<SignUpProps>({
     phoneNumber: joi.string().required().min(10),

@@ -14,7 +14,7 @@ export const signup = async (req: Request, res: Response) => {
       const user: SignUpProps = req.user
       const code = await generateCode()
       transporter.sendMail({
-         from: `${process.env.EMAIL_SENDER} <${process.env.APP_USER}>`,
+         from: `${process.env.APP_USER}`,
          subject: 'Entreplin',
          to: user.email,
          html: `<p>Hi there, this is your verification code:  <strong>${code}</strong></p>`,
@@ -35,7 +35,7 @@ export const resendCode = async (req: Request, res: Response) => {
       if(!user) throw new Error(`User not found`)
       const code = await generateCode()
          transporter.sendMail({
-            from: `${process.env.EMAIL_SENDER} <${process.env.APP_USER}>`,
+            from: `${process.env.APP_USER}`,
             subject: 'Entreplin',
             to: user.email,
             html: `<p>Hi there, this is your verification code: <strong>${code}</strong></p>`,
@@ -142,7 +142,7 @@ export const forgotPasswordConfirmationEmail = async (req: Request, res: Respons
       if(!isUser) throw new Error('User not found')
       const code = await generateCode()
       transporter.sendMail({
-         from: `${process.env.EMAIL_SENDER} <${process.env.APP_USER}>`,
+         from: `${process.env.APP_USER}`,
          subject: 'Entreplin',
          to: email,
          html: `<p>Hi there, this is your verification code: <strong>${code}</strong></p>`,

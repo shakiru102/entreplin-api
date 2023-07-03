@@ -4,27 +4,35 @@ import { decodePassword, passwordHash } from "../../utils/hashPassword";
 import { deleteFile, saveFile } from "../../utils/cloudinary";
 
 export const resetPasssword = async (req: Request, res: Response) => {
-    // @ts-ignore
+    try {
+      // @ts-ignore
     const userId = req.userId
     const hashPassword = passwordHash(req.body.password)
-    const user = await UserModel.findOneAndUpdate({ 
+    const user = await UserModel.updateOne({ 
         _id: userId 
     }, { password: hashPassword })
     if(!user) return res.status(400).send({ error: 'Could not reset password' })
    res.status(200).send({ message: 'Password updated successfully' })
+    } catch (error: any) {
+      res.status(500).send({ error: error.message });
+    }
 }
 
 export const updateUserLocation = async (req: Request, res: Response) => {
 
-    const userDetaiils = {
+    try {
+      const userDetaiils = {
         country: req.body.country,
         state: req.body.state,
         phoneNumber: req.body.phoneNumber
     }
     // @ts-ignore
-    const user = await UserModel.findOneAndUpdate({ _id: req.userId }, userDetaiils)
-    if(!user) return res.status(400).send({ error: 'Could not update user location' })
+    const user = await UserModel.updateOne({ _id: req.userId }, userDetaiils)
+    if(user.modifiedCount === 0) return res.status(400).send({ error: 'Could not update user location' })
     res.status(200).send({ message: 'User location updated successfully' })
+    } catch (error: any) {
+      res.status(500).send({ error: error.message })
+    }
 }
 
 export const getUserDetails = async (req: Request, res: Response) => {
@@ -48,8 +56,8 @@ export const updateUserProfile = async (req: Request, res: Response) => {
         ...(req.body.state && { state: req.body.state }),
         ...(req.body.phoneNumber && { phoneNumber: req.body.phoneNumber })
       }
-    const user = await UserModel.findOneAndUpdate({ _id: userId }, userDetaiils)
-    if(!user) return res.status(400).send({ message: 'Could not update user profile' })
+    const user = await UserModel.updateOne({ _id: userId }, userDetaiils)
+    if(user.modifiedCount === 0) return res.status(400).send({ message: 'Could not update user profile' })
     res.status(200).send({ message: 'User profile updated successfully' })
       } catch (error: any) {
         res.status(500).send({ error: error.message })

@@ -64,7 +64,7 @@ export const createUserMiddleware = async (req: Request, res: Response, next: Ne
       if(!user) return res.status(401).send({ error: 'User unauthorized' })
       if(!user.emailVerified) return res.status(401).send({ error: 'User unauthorized' })
       //  @ts-ignore
-    req.userId = user.id
+    req.userId = user._id
       next()
   } catch (error: any) {
    res.status(500).send({ error: error.message })

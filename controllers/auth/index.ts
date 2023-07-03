@@ -55,7 +55,7 @@ export const verifyEmaiil = async (req: Request, res: Response) => {
          { email: req.body.email},
          { emailVerified: true })
          if(!user) throw new Error(`Can not find ${req.body.email}`)
-         const token = encode(user.email)
+         const token = encode(user._id)
          res.status(200).send({ message: 'Email verified', token })
    } catch (error: any) {
       res.status(400).send({ error: error.message })

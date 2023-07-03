@@ -27,7 +27,8 @@ export const updateUserLocation = async (req: Request, res: Response) => {
         phoneNumber: req.body.phoneNumber
     }
     // @ts-ignore
-    const user = await UserModel.updateOne({ _id: req.userId }, userDetaiils)
+    const userId = req.userId
+    const user = await UserModel.updateOne({ _id: userId }, userDetaiils)
     if(user.modifiedCount === 0) return res.status(400).send({ error: 'Could not update user location' })
     res.status(200).send({ message: 'User location updated successfully' })
     } catch (error: any) {
@@ -50,6 +51,8 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       try {
         // @ts-ignore
       const userId = req.userId
+      console.log(userId);
+      
       const userDetaiils = {
         ...(req.body.fullName && { fullName: req.body.fullName }),
         ...(req.body.country && { country: req.body.country }),

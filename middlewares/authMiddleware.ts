@@ -61,6 +61,7 @@ export const createUserMiddleware = async (req: Request, res: Response, next: Ne
       const decodeToken: any = decode(token)
       if(!decodeToken) return res.status(401).send({ error: 'User unauthorized' })
       const user = await authUser(decodeToken.id)
+      
       if(!user) return res.status(401).send({ error: 'User unauthorized' })
       if(!user.emailVerified) return res.status(401).send({ error: 'User unauthorized' })
       //  @ts-ignore

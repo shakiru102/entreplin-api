@@ -12,6 +12,7 @@ import ChatRoutes from './routes/chats'
 import http from 'http'
 import { Server } from "socket.io"
 import socketIO from './sockets/index'
+import { getCountries } from "./controllers"
 
 env.config()
 
@@ -51,5 +52,5 @@ app.use('/api/transaction', TransactionRoutes)
 app.use('/api/chat', ChatRoutes)
 app.use('/api/forum', ForumRoutes)
 
-
+app.get('/api/countries', getCountries)
 app.get('/', (req: Request, res: Response) => res.send('server is running.'))

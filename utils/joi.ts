@@ -52,11 +52,12 @@ const transactionSchema = joi.object<TransactionProps>({
     companyName: joi.string().required(),
     companyProducts: joi.array().items(joi.string().required()).required(),
     companyWebsite: joi.string().required(),
-    // price: joi.number().required(),
+    price: joi.number(),
     post: joi.string().required(),
     transactionType: joi.string().required(),
     country: joi.string().required(),
-    state: joi.string().required()
+    state: joi.string().required(),
+    companyAddress: joi.string().required()
 })
 
 const forumPostSchema = joi.object<DiscussionsProps>({

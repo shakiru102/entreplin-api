@@ -54,6 +54,9 @@ const schema = new mongoose.Schema<TransactionProps>({
     savedUsers: {
         type: Array,
         default: []
+    },
+    companyAddress: {
+        type: String
     }    
 }, { timestamps: true })
 

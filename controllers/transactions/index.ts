@@ -110,7 +110,7 @@ export const buinessTransactionAction = async (req: Request, res: Response) => {
         const userId = req.userId
         const transaction = await TransactionModel.findById(transactionId)
          if(!transaction) return res.status(400).send({ error: 'Could not get transaction post' })
-         const saveTransaction = transaction.savedUsers?.find(item => item === userId)
+         const saveTransaction = transaction.savedUsers?.find(item => item == userId)
          if(saveTransaction) {
             const isUnSaved = await TransactionModel.updateOne({
                 _id: transactionId

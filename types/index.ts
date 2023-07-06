@@ -47,7 +47,8 @@ export interface TransactionProps {
     country?: string;
     state?: string;
     authorId?: string;
-    savedUsers?: string[]
+    savedUsers?: string[];
+    companyAddress?: string;
 
 }
 

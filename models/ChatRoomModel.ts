@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import { ChatRoomProps } from "../types";
 
 const schema = new mongoose.Schema<ChatRoomProps>({
-    members: {
-        type: Array,
-        required: true
-    },
+    members: [
+        {
+            type: String,
+            required: true
+        }
+    ],
     buisnessId: {
         type: String,
     }

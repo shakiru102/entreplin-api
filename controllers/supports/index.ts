@@ -13,7 +13,7 @@ export const createSupportPost = async (req: Request, res: Response) => {
         console.log(req.body);
         
         const post: SupportProps = req.body
-        const conditions = req.body.conditions.replace("[]", "").split(", ")
+        const conditions = req.body.conditions.replace(/[\[\]']+/g, "").split(", ")
         if (files){
         const supportImages: SupportProps['images'] = [] 
         // @ts-ignore

@@ -8,7 +8,7 @@ export const createBuisnessTransaction = async (req: Request, res: Response) => 
     try {
         let companyLogo: TransactionProps['companyLogo']
         let companyImages: TransactionProps['companyImages'] = []
-        const companyProducts = req.body.companyProducts.replace("[]", "").split(", ")
+        const companyProducts = req.body.companyProducts.replace(/[\[\]']+/g, "").split(", ")
         // @ts-ignore
         const userId = req.userId
         // @ts-ignore

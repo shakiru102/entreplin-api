@@ -10,7 +10,7 @@ export const createSupportPost = async (req: Request, res: Response) => {
         // @ts-ignore
         const userId = req.userId
         const files = req.files
-        const post: SupportProps = req.body
+        const post: SupportProps = JSON.parse(req.body)
         if (files){
         const supportImages: SupportProps['images'] = [] 
         // @ts-ignore

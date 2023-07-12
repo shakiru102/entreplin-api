@@ -10,7 +10,10 @@ export const createSupportPost = async (req: Request, res: Response) => {
         // @ts-ignore
         const userId = req.userId
         const files = req.files
-        const post: SupportProps = JSON.parse(req.body)
+        console.log(req.body);
+        
+        const post: SupportProps = req.body
+        const conditions = req.body.conditions.replace("[]", "").split(", ")
         if (files){
         const supportImages: SupportProps['images'] = [] 
         // @ts-ignore
@@ -25,7 +28,7 @@ export const createSupportPost = async (req: Request, res: Response) => {
                         })
               }
            }
-           const isPost = await SupportModel.create({ ...post, authorId: userId, images: supportImages })
+           const isPost = await SupportModel.create({ ...post, conditions, authorId: userId, images: supportImages })
             if(!isPost) throw new Error(`Could not create ${ post.supportType } post`)
             return  res.status(200).send({ message: `${ post.supportType} post created successfully`})
         }

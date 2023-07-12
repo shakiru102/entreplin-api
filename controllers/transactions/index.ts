@@ -8,7 +8,7 @@ export const createBuisnessTransaction = async (req: Request, res: Response) => 
     try {
         let companyLogo: TransactionProps['companyLogo']
         let companyImages: TransactionProps['companyImages'] = []
-        const transactionData = JSON.parse(req.body) 
+        const companyProducts = req.body.companyProducts.replace("[]", "").split(", ")
         // @ts-ignore
         const userId = req.userId
         // @ts-ignore
@@ -44,7 +44,7 @@ export const createBuisnessTransaction = async (req: Request, res: Response) => 
 
         }
 
-        const transaction = await TransactionModel.create({...transactionData, companyImages, companyLogo, authorId: userId })
+        const transaction = await TransactionModel.create({...req.body, companyProducts, companyImages, companyLogo, authorId: userId })
         if(!transaction) throw new Error(`Error creating transaction`)
         res.status(200).send({ message: 'Buisness transaction is created sucessfully.' })
     } catch (error: any) {

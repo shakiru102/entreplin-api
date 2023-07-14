@@ -57,11 +57,10 @@ export const getBuisnessTransaction = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1
         const limit = parseInt(req.query.limit as string) || 10
         const country = req.query.country || ''
-        const transactionType = req.query.transactionType
-
+        const transactionType = req.query.transactionType || 'All'
         const transactions = await TransactionModel.find({
                     country: { $regex: country, $options: 'i' },
-                    ...(transactionType && { transactionType })
+                    ...(transactionType !== 'All' && { transactionType })
                 })
         if(!transactions) throw new Error(`No transactions found`)
         res.status(200).json(paginatedResult(transactions, page, limit))
@@ -111,7 +110,8 @@ export const buinessTransactionAction = async (req: Request, res: Response) => {
         const userId = req.userId
         const transaction = await TransactionModel.findById(transactionId)
          if(!transaction) return res.status(400).send({ error: 'Could not get transaction post' })
-         const saveTransaction = transaction.savedUsers?.find(item => item == userId)
+         const saveTransaction = await TransactionModel.findOne({ _id: transactionId, savedUsers: userId })
+         
          if(saveTransaction) {
             const isUnSaved = await TransactionModel.updateOne({
                 _id: transactionId

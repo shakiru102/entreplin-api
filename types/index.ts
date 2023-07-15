@@ -9,6 +9,7 @@ export interface SignUpProps  {
     _id?: string;
     id?: string;
     picture?: string;
+    verificationCode?: string;
 }
 
 export interface SupportProps {

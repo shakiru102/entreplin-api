@@ -35,6 +35,9 @@ const schema = new mongoose.Schema<SignUpProps>({
      picture: {
         type: String,
         trim: true
+     },
+     verificationCode: {
+        type: String
      }
 }, { timestamps: true })
 

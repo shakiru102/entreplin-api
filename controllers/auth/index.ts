@@ -13,6 +13,11 @@ export const signup = async (req: Request, res: Response) => {
     // @ts-ignore
       const user: SignUpProps = req.user
       const code = await generateCode()
+      await UserModel.updateOne({ email: user.email }, {
+         $set: {
+            verificationCode: code
+         }
+      })
       transporter.sendMail({
          from: `${process.env.APP_USER}`,
          subject: 'Entreplin',
@@ -22,7 +27,7 @@ export const signup = async (req: Request, res: Response) => {
       if(err) return res.status(400).send({ error: err });
       res.status(200).send({ code })
      })
-    res.status(200).send({ message: "The verification code has been sent to your mail", code })
+    res.status(200).send({ message: "The verification code has been sent to your mail" })
    } catch (error: any) {
     res.status(error.status).send({ error: error })
    }
@@ -34,6 +39,11 @@ export const resendCode = async (req: Request, res: Response) => {
       const user = await UserModel.findOne({ email: details.email})
       if(!user) throw new Error(`User not found`)
       const code = await generateCode()
+      await UserModel.updateOne({ email: user.email }, {
+         $set: {
+            verificationCode: code
+         }
+      })
          transporter.sendMail({
             from: `${process.env.APP_USER}`,
             subject: 'Entreplin',
@@ -41,7 +51,7 @@ export const resendCode = async (req: Request, res: Response) => {
             html: `<p>Hi there, this is your verification code: <strong>${code}</strong></p>`,
         }, (err, response) => {
          if(err) return res.status(400).send({ error: err });
-         res.status(200).send({ message: "The verification code has been sent to your mail", code })
+         res.status(200).send({ message: "The verification code has been sent to your mail" })
         })
          
    } catch (error: any) {
@@ -52,7 +62,7 @@ export const resendCode = async (req: Request, res: Response) => {
 export const verifyEmaiil = async (req: Request, res: Response) => {
    try {
       const user = await UserModel.findOneAndUpdate(
-         { email: req.body.email},
+         { email: req.body.email, verificationCode: req.body.code},
          { emailVerified: true })
          if(!user) throw new Error(`Can not find ${req.body.email}`)
          const token = encode(user._id)

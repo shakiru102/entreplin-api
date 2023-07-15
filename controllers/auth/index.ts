@@ -64,7 +64,7 @@ export const verifyEmaiil = async (req: Request, res: Response) => {
       const user = await UserModel.findOneAndUpdate(
          { email: req.body.email, verificationCode: req.body.code},
          { emailVerified: true })
-         if(!user) throw new Error(`Can not find ${req.body.email}`)
+         if(!user) throw new Error(`Can not find ${req.body.email} or the verification code: ${req.body.code} is invalid`)
          const token = encode(user._id)
          res.status(200).send({ message: 'Email verified', token })
    } catch (error: any) {

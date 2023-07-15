@@ -7,8 +7,9 @@ const signupSchema = joi.object<SignUpProps>({
     fullName: joi.string().required()
 })
 
-const emailValidationSchema = joi.object<SignUpProps>({
-    email: joi.string().email().required()
+const emailValidationSchema = joi.object<{email: string; code: string}>({
+    email: joi.string().email().required(),
+    code: joi.string().required()
 })
 const passwordValidationSchema = joi.object<SignUpProps>({
     password: joi.string().required().min(8)

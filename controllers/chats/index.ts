@@ -3,6 +3,7 @@ import ChatRoom from "../../models/ChatRoomModel";
 import { MessagesProps } from "../../types";
 import { saveFile } from "../../utils/cloudinary";
 import MessageModel from "../../models/MessageModel";
+import paginatedResult from "../../utils/pagination";
 
 export const initiateChatRoom = async (req: Request, res: Response) => {
     try {
@@ -81,10 +82,11 @@ export const sendMessage = async (req: Request, res: Response) => {
 export const listRoomMessages = async (req: Request, res: Response) => {
    try {
      const roomId = req.params.roomId
+     const page = parseInt(req.query.page as string) || 1 
+    const limit = parseInt(req.query.limit as string) || 10 
      if(!roomId) return res.status(400).send({ error: 'Could not find chat room' })
      const messages = await MessageModel.find({ roomId })
-     if(!messages) return res.status(400).send({ error: 'Could not find messages'})
-     return res.status(200).json(messages)
+     return res.status(200).json(paginatedResult(messages, page, limit))
    } catch (error: any) {
      res.status(500).send({ error: error.message })
    }

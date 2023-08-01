@@ -148,9 +148,13 @@ export const signinWithEmailAndPassword = async (req: Request, res: Response) =>
 export const forgotPasswordConfirmationEmail = async (req: Request, res: Response) => {
    const { email }: SignUpProps = req.body
    try {
-      const isUser = await UserModel.findOne({ email })
-      if(!isUser) throw new Error('User not found')
       const code = await generateCode()
+      const isUser = await UserModel.findOneAndUpdate({ email }, {
+         $set: {
+            verificationCode: code
+         }
+      })
+      if(!isUser) throw new Error('User not found')
       transporter.sendMail({
          from: `${process.env.APP_USER}`,
          subject: 'Entreplin',
@@ -158,16 +162,20 @@ export const forgotPasswordConfirmationEmail = async (req: Request, res: Respons
          html: `<p>Hi there, this is your verification code: <strong>${code}</strong></p>`,
      }, (err, response) => {
       if(err) return res.status(400).send({ error: err });
-      res.status(200).send({ message: "The verification code has been sent to your mail", code })
+      res.status(200).send({ message: "The verification code has been sent to your mail" })
      })
-      const token = encode(email)
-      res.status(200).send({
-         message: 'Email sent',
-         code,
-         token
-      })
-         
    } catch (error: any) {
       res.status(400).send({ error: error.message})
+   }
+}
+
+export const verifyForgotPasswordConfirmationEmail = async (req: Request, res: Response) => {
+   try {
+      const user =  await UserModel.findOne({ email: req.body.email, verificationCode: req.body.code });
+      if(!user) return res.status(400).send({ error: `Can not find ${req.body.email} or the verification code: ${req.body.code} is invalid` })
+         const token = encode(user._id)
+         res.status(200).json({ token })
+   } catch (error: any) {
+      res.status(500).send({ error: error.message })
    }
 }

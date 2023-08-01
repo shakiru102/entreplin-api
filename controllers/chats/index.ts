@@ -102,7 +102,6 @@ export const readMessageNotification = async (req: Request, res: Response) => {
                 isRead: true
             }
         })
-        console.log(isUpdated);
         
        if(isUpdated.modifiedCount === 0) return res.status(400).send({ error: 'Message not updated' })
        return res.status(200).send({ message: 'Message read' })
@@ -120,8 +119,8 @@ export const unReadMessageNotification = async (req: Request, res: Response) => 
             attachments: 0,
             text: 0
         })
-        if(!notifications) return res.status(404).send({ error: 'Could not get notifications' })
-        const filteredNotifications = notifications.filter(notification => notification.senderId !== userId)
+        if(!notifications) return res.status(400).send({ error: 'Could not get notifications' })
+        const filteredNotifications = notifications.filter(notification => notification.senderId != userId)
         res.status(200).json(filteredNotifications)
     } catch (error: any) {
         res.status(500).send({ error: error.message })
@@ -132,7 +131,7 @@ export const lastRoomMessage = async (req: Request, res: Response) => {
     const roomId = req.params.roomId
     try {
         const message = await MessageModel.find({ roomId })
-        if(!message) return res.status(404).send({ error: 'Could not get message' })
+        if(!message) return res.status(400).send({ error: 'Could not get message' })
         const lastMassage = message.slice(-1)
         return res.status(200).json(lastMassage[0])
     } catch (error: any) {
@@ -150,13 +149,11 @@ export const allUnreadMessageNotifications = async (req: Request, res: Response)
                 $in: [ userId ]
             }
         })
-        if(!rooms) return res.status(400).send({ error: 'Could not find chatrooms' })
         for (let room of rooms) {
             const messages = await MessageModel.find({ roomId: room._id, isRead: false }, {
                 text: 0,
                 attachments: 0
             })
-            if(!messages) return res.status(400).send({ error: 'Could not find messages' })
             for (let message of messages) {
                 if(message.senderId!== userId) {
                     notifications.push(message)

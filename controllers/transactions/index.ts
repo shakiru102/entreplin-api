@@ -70,6 +70,19 @@ export const getBuisnessTransaction = async (req: Request, res: Response) => {
     
 }
 
+export const getUserBusinessTransactiontPosts = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.userId
+        const page = parseInt(req.query.page as any) || 1 
+        const limit = parseInt(req.query.limit as any) || 10 
+        const supports = await TransactionModel.find({ authorId: userId })
+        res.status(200).json(paginatedResult(supports, page, limit))
+    } catch (error: any) {
+        res.status(500).send({ error: error.message })
+    }
+}
+
 export const singleBuisnessTransaction = async (req: Request, res: Response) => {
     try {
         const transaction = await TransactionModel.findById({ _id: req.params.transactionId })

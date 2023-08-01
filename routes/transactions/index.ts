@@ -1,6 +1,6 @@
 import { Router } from "express";
 import upload from "../../utils/fileStorage";
-import { buinessTransactionAction, createBuisnessTransaction, deleteBuisnessTransaction, getBuisnessTransaction, singleBuisnessTransaction, userSavedBuisnessTransaction } from "../../controllers/transactions";
+import { buinessTransactionAction, createBuisnessTransaction, deleteBuisnessTransaction, getBuisnessTransaction, getUserBusinessTransactiontPosts, singleBuisnessTransaction, userSavedBuisnessTransaction } from "../../controllers/transactions";
 import { auth } from "../../middlewares/authMiddleware";
 import { transactionSchemaValidation } from "../../middlewares/postMiddleware";
 
@@ -12,6 +12,7 @@ route.post('/create-transaction', auth, upload.fields([
 ]), transactionSchemaValidation, createBuisnessTransaction)
 
 route.get('/transactions', getBuisnessTransaction)
+route.get('/user-transactions', auth, getUserBusinessTransactiontPosts)
 route.get('/single-transaction/:transactionId', singleBuisnessTransaction)
 route.get('/user-saved-transaction', auth, userSavedBuisnessTransaction)
 route.patch('/buisness-transaction-action/:transactionId', auth, buinessTransactionAction)

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { DiscussionsProps } from "../types";
+import { DiscussionsProps, ReplyProps } from "../types";
 
 const schema = new mongoose.Schema<DiscussionsProps>({
     likes: {
@@ -34,11 +34,51 @@ const schema = new mongoose.Schema<DiscussionsProps>({
                     },
                     authorId: {
                         type: String
+                    },
+                    meta_data: {
+                        fullName: {
+                            type: String
+                        },
+                        email: {
+                            type: String
+                        },
+                        state: {
+                            type: String
+                        },
+                        country: {
+                            type: String
+                        },
+                        phoneNumber: {
+                            type: String
+                        },
+                        picture: {
+                          type: String
+                        }
                     }
                 }
             ],
             authorId: {
                 type: String
+            },
+            meta_data: {
+                fullName: {
+                    type: String
+                },
+                email: {
+                    type: String
+                },
+                state: {
+                    type: String
+                },
+                country: {
+                    type: String
+                },
+                phoneNumber: {
+                    type: String
+                },
+                picture: {
+                  type: String
+                }
             }
         }
     ],
@@ -47,6 +87,26 @@ const schema = new mongoose.Schema<DiscussionsProps>({
     },
     forumId: {
         type: String
+    },
+    meta_data: {
+        fullName: {
+            type: String
+        },
+        email: {
+            type: String
+        },
+        state: {
+            type: String
+        },
+        country: {
+            type: String
+        },
+        phoneNumber: {
+            type: String
+        },
+        picture: {
+          type: String
+        }
     }
 }, { timestamps: true });
 

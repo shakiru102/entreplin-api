@@ -76,6 +76,7 @@ export interface ReplyProps {
     createdAt?: Date;
     authorId?: string;
     _id?: string;
+    meta_data?: MetaProps
 }
 
 export interface ForumComment {
@@ -83,8 +84,18 @@ export interface ForumComment {
     text?: string;
     createdAt?: Date;
     authorId?: string;
+    meta_data?: MetaProps
     _id?: string;
     reply?: ReplyProps[]
+}
+
+export interface MetaProps {
+    fullName?: string;
+    email: string;
+    phoneNumber?: string;
+    country?: string;
+    state?: string;
+    picture?: string;
 }
 
 export interface DiscussionsProps {
@@ -94,6 +105,7 @@ export interface DiscussionsProps {
    authorId?: string;
 //    unReadPostMembers?: string[];
    forumId?: string;
+   meta_data?: MetaProps
 }
 
 export interface ForumNotificationsProps {

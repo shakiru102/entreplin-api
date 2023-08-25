@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { auth } from "../../middlewares/authMiddleware";
-import { commentActions, commentReply, creatComment, forumActivityeNotifications, forumPost, getForumActivityeNotifications, getForumPosts, getForums, getSingleForumPost, joinForum, postLike, replyAction, updateForumActivityNotification } from "../../controllers/forum";
+import { commentActions, commentReply, creatComment, deleteForumNotification, forumActivityeNotifications, forumPost, getForumActivityeNotifications, getForumPosts, getForums, getSingleForumPost, joinForum, postLike, replyAction, updateForumActivityNotification } from "../../controllers/forum";
 import { commentPostValidations, discussionPostValidations, forumActivityNotificationValidations } from "../../middlewares/postMiddleware";
 
 const route = Router();
@@ -18,6 +18,7 @@ route.patch('/forum-post-comment-action', auth, commentActions)
 route.patch('/forum-post-comment-reply', auth, commentReply)
 route.patch('/forum-post-comment-reply-action', auth, replyAction)
 route.patch('/forum-activity-notification-seen/:notificationId', auth, updateForumActivityNotification)
+route.delete('/forum-activity-notification/:notificationId', deleteForumNotification)
 
 
 

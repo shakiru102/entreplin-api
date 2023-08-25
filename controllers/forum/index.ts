@@ -3,6 +3,7 @@ import Forum from "../../models/Forum";
 import { DiscussionsProps, ForumComment, ForumNotificationsProps, ReplyProps } from "../../types";
 import ForumPost from "../../models/ForumPost";
 import ForumNotification from "../../models/ForumNotification";
+import UserModel from "../../models/UserModel";
 
 export const joinForum = async (req: Request, res: Response) => {
     // @ts-ignore
@@ -57,10 +58,14 @@ export const forumPost = async (req: Request, res: Response) => {
         forumPost
     }: DiscussionsProps = req.body
     try {
+
+        const user = await UserModel.findById(userId, { _id: 0, emailVerified: 0, password: 0, verificationCode: 0 })
+
         const forumMessage = await ForumPost.create({
             forumId,
             authorId: userId,
             forumPost,
+            meta_data: user
         })
         if(!forumMessage) res.status(400).send({ error: "Could not send forum message" })
         res.status(200).json(forumMessage)
@@ -108,9 +113,11 @@ export const creatComment = async (req: Request, res: Response) => {
     const userId = req.userId
     const { text, postId } = req.body
     try {
+        const user = await UserModel.findById(userId, { _id: 0, emailVerified: 0, password: 0, verificationCode: 0 })
         const comment: ForumComment = {
             authorId: userId,
-            text
+            text,
+            ...(user && {meta_data: user})
         }
         const forumPost = await ForumPost.updateOne({ _id: postId}, {
             $push: {
@@ -178,9 +185,11 @@ export const commentReply = async (req: Request, res: Response) => {
     try {
         const { text }: ReplyProps = req.body 
         if(!text) return res.status(400).send({ error: "text is required" })
+        const user = await UserModel.findById(userId, { _id: 0, emailVerified: 0, password: 0, verificationCode: 0 })
         const reply: ReplyProps = {
             authorId: userId,
             text,
+            ...(user && { meta_data: user })
         }
         const post = await ForumPost.findById(postId)
         if(!post) return res.status(400).send({ error: "Post not found" })
@@ -263,7 +272,19 @@ export const updateForumActivityNotification = async (req: Request, res: Respons
         })
         res.status(200).json(isRead)
     } catch (error: any) {
-        res.status(500).send(error.message)
+        res.status(500).send({error: error.message})
+    }
+}
+
+export const deleteForumNotification = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const notificationId = req.params.notificationId
+        const isDeleted = await ForumNotification.deleteOne({ _id: notificationId })
+        if(isDeleted.deletedCount == 0) return res.status(400).send({ error: "Could not delete notification" }) 
+        res.status(200).send({ message: "Notification is deleted" })
+    } catch (error: any) {
+        res.status(500).send({error: error.message})
     }
 }
 

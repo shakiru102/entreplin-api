@@ -1,19 +1,37 @@
-import { Socket } from "socket.io"
+import { Server, Socket } from "socket.io"
 import { DiscussionsProps, ForumNotificationsProps, MessagesProps } from "../types";
 import UserModel from "../models/UserModel";
+import { decode } from "../utils/token";
 
 interface IMessageProps extends MessagesProps {
     receiptientId: string
 }
 
-export default (io: Socket) => {
+export default (io: Server) => {
 
   let onlineUsers: { 
     userId: string;
     onlineId: string;
    }[] = []
 
-  io.on('connection', (socket: Socket) => {
+  
+
+  io
+  .use(async function(socket, next){
+    if (socket.handshake.query && socket.handshake.query.token){
+      const token = socket.handshake.query.token
+      const decodeToken: any = decode(token as string)
+      if(!decodeToken) return next(new Error('Authentication error'))
+      // @ts-ignore
+      socket.userId = decodeToken.id
+      next()
+    }
+    else {
+      next(new Error('Authentication error'));
+    }    
+  })
+  
+  .on('connection', (socket: Socket) => {
  
     // Create an online instance
     socket.on('activeUser', res => {

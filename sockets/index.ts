@@ -33,16 +33,17 @@ export default (io: Server) => {
   
   .on('connection', (socket: Socket) => {
  
-    // Create an online instance
-    socket.on('activeUser', res => {
-       const isOnline = onlineUsers.find(user => user.userId === res.userId)
-       if (!isOnline) onlineUsers.push({
-        onlineId: socket.id,
-        userId: res.userId
-       })
-    io.emit('onlineUsers', onlineUsers)
+      // @ts-ignore
+       const isOnline = onlineUsers.find(user => user.userId === socket.userId)
+       if (!isOnline) {
+        onlineUsers.push({
+          onlineId: socket.id,
+          // @ts-ignore
+          userId: socket.userId
+         })
+        io.emit('onlineUsers', onlineUsers)
+       }
       
-    })
    
     // send message
     socket.on('sendMessage', (res: IMessageProps) => {

@@ -4,7 +4,7 @@ import UserModel from "../models/UserModel";
 import { decode } from "../utils/token";
 
 interface IMessageProps extends MessagesProps {
-    receiptientId: string
+    recipientId: string
 }
 
 export default (io: Server) => {
@@ -47,8 +47,8 @@ export default (io: Server) => {
    
     // send message
     socket.on('sendMessage', (res: IMessageProps) => {
-        const user = onlineUsers.find(users => users.userId === res.receiptientId)
-       if(user) io.to(user.onlineId).emit('receiveMessage', res)
+      const user = onlineUsers.find(users => users.userId === res.recipientId)
+      if(user) io.to(user.onlineId).emit('receiveMessage', res)
     })
 
 

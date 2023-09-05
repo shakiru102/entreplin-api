@@ -12,7 +12,7 @@ export const sendMail = async (to: string, subject: string, text: string) => {
                     from: "Mailgun Sandbox <postmaster@sandbox5cf16401568e454db71273980a008be0.mailgun.org>",
                     to,
                     subject,
-                    text
+                    text,
                 })
         return { status, message }
 }

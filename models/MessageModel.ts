@@ -29,6 +29,9 @@ const schema = new mongoose.Schema<MessagesProps>({
     isRead: {
             type: Boolean,
             default: false
+        },
+        recipientId: {
+            type: String
         }
 }, { timestamps: true })
 

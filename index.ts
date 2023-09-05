@@ -32,13 +32,13 @@ const app = express()
 const Port = process.env.PORT || 3000
 const server = http.createServer(app)
 
- const io = new Server(server, {
+ export const io: Server = new Server(server, {
    cors: {
       origin: '*'
    }
 })
 
-socketIO(io as any)
+socketIO(io as Server)
 
 
 server.listen(Port, () => console.log('listening on port ' + Port))

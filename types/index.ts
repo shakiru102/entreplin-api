@@ -68,6 +68,7 @@ export interface MessagesProps {
         fileType?: string;
     }[];
     isRead?: boolean;
+    recipientId?: string;
 }
 
 export interface ReplyProps {

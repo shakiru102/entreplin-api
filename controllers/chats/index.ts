@@ -18,7 +18,7 @@ export const initiateChatRoom = async (req: Request, res: Response) => {
                 $all: [userId, memberId]
             },
             ...(transactionId && { buisnessId: transactionId })
-        })
+        }).populate("members", '-__v -password -verificationCode')
         if(isCreated) return res.status(200).json(isCreated)
         const chatroom = await ChatRoom.create({
             members: [userId, memberId],

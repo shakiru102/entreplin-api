@@ -32,8 +32,9 @@ const schema = new mongoose.Schema<SupportProps>({
         default: []
     },
     authorId: {
-            type: String,
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     images: [
         {
             imageId: {

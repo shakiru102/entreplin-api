@@ -71,7 +71,7 @@ export const getSupportPosts = async (req: Request, res: Response) => {
                                 $regex: country,
                                 $options: 'i'
                             }}),
-             ...(supportType && { supportType })
+             ...(supportType && { supportType }).populate("authorId", '-__v -password -verificationCode')
          })
          
         if(!supports) return res.status(400).send({ error: `Could not find any support posts` })
@@ -84,7 +84,7 @@ export const getSupportPosts = async (req: Request, res: Response) => {
 export const getSingleSupportPost = async (req: Request, res: Response) => {
     try {
         const supportId = req.params.supportId
-        const support = await SupportModel.findOne({ _id: supportId})
+        const support = await SupportModel.findOne({ _id: supportId}).populate("authorId", '-__v -password -verificationCode')
         if(!support) return res.status(400).send({ error: `Support not found` })
         res.status(200).json(support)
     } catch (error: any) {
@@ -109,7 +109,7 @@ export const getUserSupportPosts = async (req: Request, res: Response) => {
         const userId = req.userId
         const page = parseInt(req.query.page as any) || 1 
         const limit = parseInt(req.query.limit as any) || 10 
-        const supports = await SupportModel.find({ authorId: userId })
+        const supports = await SupportModel.find({ authorId: userId }).populate("authorId", '-__v -password -verificationCode')
         res.status(200).json(paginatedResult(supports, page, limit))
     } catch (error: any) {
         res.status(500).send({ error: error.message })

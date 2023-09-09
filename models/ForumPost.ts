@@ -86,7 +86,8 @@ const schema = new mongoose.Schema<DiscussionsProps>({
         type: String
     },
     forumId: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Forum"
     },
     meta_data: {
         fullName: {

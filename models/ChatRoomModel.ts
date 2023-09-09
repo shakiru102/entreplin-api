@@ -4,13 +4,19 @@ import { ChatRoomProps } from "../types";
 const schema = new mongoose.Schema<ChatRoomProps>({
     members: [
         {
-            type: String,
-            required: true
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "User",
         }
     ],
     buisnessId: {
-        type: String,
-    }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Transactions"
+    },
+    chats: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Messages"
+    }]
 }, { timestamps: true });
 
 const ChatRoom = mongoose.model('chatroom', schema)

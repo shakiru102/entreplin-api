@@ -1,3 +1,5 @@
+import { Schema } from "mongoose";
+
 export interface SignUpProps  {
     fullName?: string;
     email: string;
@@ -54,8 +56,10 @@ export interface TransactionProps {
 }
 
 export interface ChatRoomProps {
-    members?: string[];
+    members?: Schema.Types.ObjectId[];
     buisnessId?: string;
+    _id?: Schema.Types.ObjectId;
+    chats?: Schema.Types.ObjectId[];
 }
 
 export interface MessagesProps {
@@ -69,6 +73,7 @@ export interface MessagesProps {
     }[];
     isRead?: boolean;
     recipientId?: string;
+    _id?: Schema.Types.ObjectId
 }
 
 export interface ReplyProps {

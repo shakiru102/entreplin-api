@@ -6,7 +6,8 @@ const schema = new mongoose.Schema<ForumNotificationsProps>({
         type: String
     },
     forumId: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Forum"
     },
     message: {
         type: String
@@ -14,7 +15,8 @@ const schema = new mongoose.Schema<ForumNotificationsProps>({
     receiverId: [
         {
             userId: {
-                type: String
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
             },
             isSeen: {
                 type: Boolean,

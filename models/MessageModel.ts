@@ -35,4 +35,4 @@ const schema = new mongoose.Schema<MessagesProps>({
         }
 }, { timestamps: true })
 
-export default mongoose.model("messages", schema)
+export default mongoose.model("Messages", schema)

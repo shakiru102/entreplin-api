@@ -61,7 +61,7 @@ export const getBuisnessTransaction = async (req: Request, res: Response) => {
         const transactions = await TransactionModel.find({
                     country: { $regex: country, $options: 'i' },
                     ...(transactionType !== 'All' && { transactionType })
-                })
+                }).populate("authorId", '-__v -password -verificationCode')
         if(!transactions) throw new Error(`No transactions found`)
         res.status(200).json(paginatedResult(transactions, page, limit))
     } catch (error: any) {
@@ -76,7 +76,7 @@ export const getUserBusinessTransactiontPosts = async (req: Request, res: Respon
         const userId = req.userId
         const page = parseInt(req.query.page as any) || 1 
         const limit = parseInt(req.query.limit as any) || 10 
-        const supports = await TransactionModel.find({ authorId: userId })
+        const supports = await TransactionModel.find({ authorId: userId }).populate("authorId", '-__v -password -verificationCode')
         res.status(200).json(paginatedResult(supports, page, limit))
     } catch (error: any) {
         res.status(500).send({ error: error.message })
@@ -85,7 +85,7 @@ export const getUserBusinessTransactiontPosts = async (req: Request, res: Respon
 
 export const singleBuisnessTransaction = async (req: Request, res: Response) => {
     try {
-        const transaction = await TransactionModel.findById({ _id: req.params.transactionId })
+        const transaction = await TransactionModel.findById({ _id: req.params.transactionId }).populate("authorId", '-__v -password -verificationCode')
         if(!transaction) throw new Error(`No transaction found`)
         res.status(200).json(transaction)
         

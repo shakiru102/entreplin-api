@@ -5,7 +5,6 @@ import { saveFile } from "../../utils/cloudinary";
 import MessageModel from "../../models/MessageModel";
 import paginatedResult from "../../utils/pagination";
 import { io } from "../..";
-import UserModel from "../../models/UserModel";
 
 export const initiateChatRoom = async (req: Request, res: Response) => {
     try {
@@ -33,6 +32,8 @@ export const initiateChatRoom = async (req: Request, res: Response) => {
 }
 
 export const listOfChatrooms = async (req: Request, res: Response) => {
+
+    
     // @ts-ignore
     const userId = req.userId
         try {
@@ -41,6 +42,9 @@ export const listOfChatrooms = async (req: Request, res: Response) => {
                     $in: [userId]
                 }
             })
+            .populate("members", '-__v -password -verificationCode')
+            .populate("chats")
+            .populate("buisnessId")
             if(!chatrooms) return res.status(400).send({ error: 'Could not find chatrooms'})
             return res.status(200).json(chatrooms)
         } catch (error: any) {
@@ -68,17 +72,18 @@ export const sendMessage = async (req: Request, res: Response) => {
             })
         }
     }
-    let recipientId : string | undefined
-    const chatroom = await ChatRoom.findById(roomId)
-    if(chatroom) recipientId = chatroom?.members?.filter(m => m != userId)[0]
     const message = await MessageModel.create({
         senderId: userId,
         roomId,
         ...(attachments.length && { attachments }),
         ...(text && { text }),
-        recipientId
     })
     if(!message) return res.status(400).send({error: 'Could not create message'})
+     await ChatRoom.updateOne({ _id: roomId }, {
+       $push: { 
+          chats: message.id
+       }
+    })
  io.sockets.emit('sendMessage', message)
     return res.status(200).json(message)
     } catch (error: any) {
@@ -88,19 +93,12 @@ export const sendMessage = async (req: Request, res: Response) => {
 
 export const listRoomMessages = async (req: Request, res: Response) => {
    try {
-    // @ts-ignore
-    const userId = req.userId
      const roomId = req.params.roomId
      const page = parseInt(req.query.page as string) || 1 
     const limit = parseInt(req.query.limit as string) || 10 
      if(!roomId) return res.status(400).send({ error: 'Could not find chat room' })
-     let recipientId : string | undefined
-     const chatroom = await ChatRoom.findById(roomId)
-     if(chatroom) recipientId = chatroom?.members?.filter(m => m != userId)[0]
-     const recipient = await UserModel.findById(recipientId, { verificationCode: 0, password: 0,  })
      const messages = await MessageModel.find({ roomId })
      const data = paginatedResult(messages, page, limit)
-     data.embedded.recipient = recipient
      return res.status(200).json(data)
    } catch (error: any) {
      res.status(500).send({ error: error.message })

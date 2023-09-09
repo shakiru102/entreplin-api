@@ -40,7 +40,8 @@ const schema = new mongoose.Schema<TransactionProps>({
         }
     },
     authorId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     },
     post: {
             type: String,

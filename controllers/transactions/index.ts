@@ -156,7 +156,7 @@ export const userSavedBuisnessTransaction = async (req: Request, res: Response) 
             savedUsers: {
                 $in: userId
             }
-        }, { savedUsers: 0 })
+        }, { savedUsers: 0 }).populate("authorId", '-__v -password -verificationCode')
         if(!transactions) return res.status(400).send({ error: 'No saved post found' })
         res.status(200).json(transactions)
     } catch (error: any) {

@@ -97,7 +97,7 @@ export const signinWithApple = async (req: Request, res: Response) => {
                emailVerified: true
             })
             if(!createUser) return res.status(400).send({ message: 'Could not create user' })
-            const token = encode(createUser._id)
+            const token = encode(createUser.id)
             res.status(200).send({ message:'User created', token })
       
    } catch (error: any) {
@@ -123,7 +123,7 @@ export const signinWithGoogle = async (req: Request, res: Response) => {
                emailVerified: true
             })
             if(!createUser) return res.status(400).send({ message: 'Could not create user' })
-            const token = encode(createUser._id)
+            const token = encode(createUser.id)
             res.status(200).send({ message:'User created', token })
       }
       
@@ -140,7 +140,7 @@ export const signinWithFacebook = async (req: Request, res: Response) => {
          if(!authUser.data.email) return res.status(400).send({ error: 'User email not added to facebook scope' });
          const user = await UserModel.findOne({ email: authUser.data.email})
          if(user) {
-            const token = encode(user._id)
+            const token = encode(user.id)
             return res.status(200).send({ message: 'User is authenticated', token })
          }
             const createUser = await UserModel.create({ 
@@ -167,7 +167,7 @@ export const signinWithEmailAndPassword = async (req: Request, res: Response) =>
       if(!isEmail.emailVerified) throw new Error('Email not verified')
       const isPassword = await decodePassword(password, isEmail.password)
       if(!isPassword) throw new Error('Invalid email or password')
-       const token = encode(isEmail._id)
+       const token = encode(isEmail.id)
        res.status(200).send({
          message: 'User is authenticated',
          token
@@ -206,7 +206,7 @@ export const verifyForgotPasswordConfirmationEmail = async (req: Request, res: R
    try {
       const user =  await UserModel.findOne({ email: req.body.email, verificationCode: req.body.code });
       if(!user) return res.status(400).send({ error: `Can not find ${req.body.email} or the verification code: ${req.body.code} is invalid` })
-         const token = encode(user._id)
+         const token = encode(user.id)
          res.status(200).json({ token })
    } catch (error: any) {
       res.status(500).send({ error: error.message })

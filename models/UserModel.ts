@@ -38,7 +38,11 @@ const schema = new mongoose.Schema<SignUpProps>({
      },
      verificationCode: {
         type: String
-     }
+     },
+     devices: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Devices'
+     }]
 }, { timestamps: true })
 
 export default mongoose.model<SignUpProps>("User", schema);

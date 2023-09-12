@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import UserModel from "../../models/UserModel";
 import { decodePassword, passwordHash } from "../../utils/hashPassword";
 import { deleteFile, saveFile } from "../../utils/cloudinary";
+import { addDeviceSchemaValidate, updateDeviceSchemaValidate } from "../../utils/joi";
+import UserDevice from "../../models/OneSignalDevice";
+import { UserDeviceProps } from "../../types";
 
 export const resetPasssword = async (req: Request, res: Response) => {
     try {
@@ -39,7 +42,7 @@ export const updateUserLocation = async (req: Request, res: Response) => {
 export const getUserDetails = async (req: Request, res: Response) => {
    try {
      // @ts-ignore
-     const user = await UserModel.findById(req.userId, { password: 0, verificationCode: 0 })
+     const user = await UserModel.findById(req.userId, { password: 0, verificationCode: 0 }).populate("devices")
      if(!user) return res.status(400).send({ error: 'Could not get user details' })
      res.status(200).json(user)
    } catch (error: any) {
@@ -98,4 +101,66 @@ export const uploadUserImage = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).send({ error: error.message })
     }
+}
+
+export const addUserDevice = async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore
+    const userId = req.userId
+    const { error } = addDeviceSchemaValidate(req.body)
+    if(error) return res.status(400).send({ error: error.details[0].message })
+
+    const user = await UserModel.findById(userId)
+    if(user?.devices?.length === 3) return res.status(400).send({ error: "User can only register 3 devices" })
+    
+    const device = await UserDevice.create({
+      ...req.body,
+      lastSeen: req.body.lastSeen ? req.body.lastSeen : Date.now(),
+      userId
+    })
+    
+    if(!device) return res.status(400).send({ error: "Device not created" })
+    await UserModel.updateOne({ _id: userId }, { 
+       $push: {
+        devices: device._id
+       }
+    })
+     res.status(200).send({ message: "Device successfully created" })
+  } catch (error: any) {
+     res.status(500).send({ error: error.message })
+  }
+}
+
+export const updateUserDevice = async (req: Request, res: Response) => {
+    try {
+      const { error } = updateDeviceSchemaValidate(req.body)
+      const { _id, lastSeen }:UserDeviceProps = req.body
+      if(error) return res.status(400).send({ error: error.details[0].message })
+      const isUpdated = await UserDevice.updateOne({ _id }, {
+       $set: {
+        lastSeen
+       }
+      })
+      if(isUpdated.modifiedCount === 0) return res.status(400).send({ error: "Could not update device" })
+      res.status(200).send({ message: "Device successfully updated" })
+    } catch (error: any) {
+      res.status(500).send({ error: error.message })
+    }
+}
+
+export const deleteUserDevice =  async (req: Request, res: Response) => {
+  try {
+     // @ts-ignore
+     const userId = req.userId
+      const isDeleted = await UserDevice.deleteOne({ _id: req.params.deviceId })
+      if(isDeleted.deletedCount === 0) return res.status(400).send({ error: 'Device not deleted' })
+      await UserModel.updateOne({ _id: userId }, {
+       $pull: {
+         devices: req.params.deviceId
+       }
+      })
+      res.status(200).send({ message: 'Device deleted successfully' })
+  } catch (error: any) {
+    res.status(500).send({ error: error.message })
+  }
 }

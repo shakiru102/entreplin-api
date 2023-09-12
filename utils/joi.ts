@@ -1,5 +1,5 @@
 import joi from 'joi'
-import { SupportProps, SignUpProps, TransactionProps, DiscussionsProps, ForumComment, ForumNotificationsProps } from '../types'
+import { SupportProps, SignUpProps, TransactionProps, DiscussionsProps, ForumComment, ForumNotificationsProps, UserDeviceProps } from '../types'
 
 const signupSchema = joi.object<SignUpProps>({
     email: joi.string().email().required(),
@@ -82,6 +82,17 @@ const forumActivityNotificationSchema = joi.object<ForumNotificationsProps>({
     replyId: joi.string()
 })
 
+const addDeviceSchema = joi.object<UserDeviceProps>({
+    deviceName: joi.string().required(),
+    oneSignalId: joi.string().required(),
+    lastSeen: joi.date()
+})
+
+const updateDeviceSchema = joi.object<UserDeviceProps>({
+    lastSeen: joi.date().required(),
+    _id: joi.string().required()
+})
+
 
 
 
@@ -98,3 +109,5 @@ export const transactionSchemaValidate = (data: TransactionProps) => transaction
 export const forumSchemaValidate = (data: DiscussionsProps) => forumPostSchema.validate(data); //
 export const commentPostSchemaValidate = (data: object) => forumCommentSchema.validate(data); //
 export const forumActivityNotificationSchemaValidate = (data: ForumNotificationsProps) => forumActivityNotificationSchema.validate(data)
+export const addDeviceSchemaValidate = (data: UserDeviceProps) => addDeviceSchema.validate(data); 
+export const updateDeviceSchemaValidate = (data: UserDeviceProps) => updateDeviceSchema.validate(data); 

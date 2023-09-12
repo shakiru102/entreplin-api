@@ -5,6 +5,10 @@ import { saveFile } from "../../utils/cloudinary";
 import MessageModel from "../../models/MessageModel";
 import paginatedResult from "../../utils/pagination";
 import { io } from "../..";
+import * as OneSignal from '@onesignal/node-onesignal'
+import UserModel from "../../models/UserModel";
+import { send } from "process";
+import { oneSignalClient } from "../../utils/oneSignal";
 
 export const initiateChatRoom = async (req: Request, res: Response) => {
     try {
@@ -18,11 +22,15 @@ export const initiateChatRoom = async (req: Request, res: Response) => {
                 $all: [userId, memberId]
             },
             ...(transactionId && { buisnessId: transactionId })
-        }).populate("members", '-__v -password -verificationCode')
+        })
+        .populate("members", '-__v -password -verificationCode')
+        .populate("buisnessId")
+        .populate("chats")
         if(isCreated) return res.status(200).json(isCreated)
         const chatroom = await ChatRoom.create({
             members: [userId, memberId],
-            ...( transactionId && { buisnessId: transactionId } )
+            ...( transactionId && { buisnessId: transactionId } ),
+            chats: []
         })
         if(!chatroom) return res.status(400).send({ error: 'Could not create chat'})
         return res.status(200).json(chatroom)
@@ -58,6 +66,22 @@ export const sendMessage = async (req: Request, res: Response) => {
     const userId = req.userId
     const { roomId, text } = req.body
     if(!roomId) return res.status(400).send({ error: 'Could not find chat room' })
+
+    let recipientId 
+    const chatroom = await ChatRoom.findById(roomId).populate('members')
+   if(!chatroom) return res.status(400).send({ error: "Could not find chat room" })
+
+   if(chatroom.members) {
+        //  @ts-ignore
+        if(userId != chatroom.members[0].id) 
+            // @ts-ignore
+            recipientId = chatroom.members[0].id
+        else 
+            // @ts-ignore
+            recipientId = chatroom?.members[1].id
+   } 
+    
+   
     const files = req.files
     const attachments: MessagesProps['attachments'] = []
     if (files) {
@@ -72,12 +96,31 @@ export const sendMessage = async (req: Request, res: Response) => {
             })
         }
     }
+   
+    const recipient =  await UserModel.findById(recipientId).populate("devices", "-_id -lastSeen -deviceName -__v -userId")
+    const sender =  await UserModel.findById(userId)
+    let onesignalIds: string[] = []
+    
     const message = await MessageModel.create({
         senderId: userId,
         roomId,
         ...(attachments.length && { attachments }),
         ...(text && { text }),
+        recipientId
     })
+
+    // @ts-ignore
+   recipient?.devices?.forEach((device) =>  onesignalIds.push(device.oneSignalId))
+    const notification = new OneSignal.Notification()
+
+    notification.app_id = process.env.ONESIGNAL_APP_ID as string
+    notification.included_segments = onesignalIds
+    notification.contents = {
+        en: message.text
+    }
+    notification.headings = {
+        en: sender?.fullName
+    }
     if(!message) return res.status(400).send({error: 'Could not create message'})
      await ChatRoom.updateOne({ _id: roomId }, {
        $push: { 
@@ -85,8 +128,19 @@ export const sendMessage = async (req: Request, res: Response) => {
        }
     })
  io.sockets.emit('sendMessage', message)
-    return res.status(200).json(message)
+
+    // const pushNotification = await oneSignalClient.createNotification(notification);
+    // if(!pushNotification.errors) {
+    //     console.log(pushNotification.errors);
+    //     return res.status(200).json(message)
+        
+    // }
+    
+ 
+     res.status(200).json(message)
     } catch (error: any) {
+        console.log(error);
+        
         res.status(500).send({ error: error.message })
     }
 }

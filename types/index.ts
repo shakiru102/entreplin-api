@@ -12,6 +12,15 @@ export interface SignUpProps  {
     id?: string;
     picture?: string;
     verificationCode?: string;
+    devices?: Schema.Types.ObjectId[]
+}
+
+export interface UserDeviceProps {
+    deviceName: string;
+    lastSeen: Date;
+    oneSignalId: string;
+    _id: Schema.Types.ObjectId;
+    userId: Schema.Types.ObjectId;
 }
 
 export interface SupportProps {

@@ -9,6 +9,7 @@ import * as OneSignal from '@onesignal/node-onesignal'
 import UserModel from "../../models/UserModel";
 import { send } from "process";
 import { oneSignalClient } from "../../utils/oneSignal";
+import TransactionModel from "../../models/TransactionModel";
 
 export const initiateChatRoom = async (req: Request, res: Response) => {
     try {
@@ -27,9 +28,12 @@ export const initiateChatRoom = async (req: Request, res: Response) => {
         .populate("buisnessId")
         .populate("chats")
         if(isCreated) return res.status(200).json(isCreated)
+        const memberOne = await UserModel.findById(memberId, { password: 0, verificationCode: 0 })
+        const memberTwo = await UserModel.findById(userId, { password: 0, verificationCode: 0 })
+        const transaction = await TransactionModel.findById(transactionId)
         const chatroom = await ChatRoom.create({
-            members: [userId, memberId],
-            ...( transactionId && { buisnessId: transactionId } ),
+            members: [memberOne, memberTwo],
+            ...( transactionId && { buisnessId: transaction } ),
             chats: []
         })
         if(!chatroom) return res.status(400).send({ error: 'Could not create chat'})

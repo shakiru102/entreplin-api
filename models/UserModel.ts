@@ -39,6 +39,14 @@ const schema = new mongoose.Schema<SignUpProps>({
      verificationCode: {
         type: String
      },
+     joinedForum: {
+        type: Boolean,
+        default: false
+     },
+     lastSeen: {
+        type: Date,
+        default: Date.now
+     },
      devices: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Devices'

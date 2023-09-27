@@ -81,6 +81,25 @@ export const getSupportPosts = async (req: Request, res: Response) => {
     }
 }
 
+export const extendSupportDate = async (req: Request, res: Response) => {
+    const supportId =  req.params.supportId
+    const isSupport = await SupportModel.findById(supportId)
+    if(!isSupport) return res.status(400).send({ error: `Could not find support post with id: ${supportId}` })
+    const currentDate = new Date();
+    // Add 7 days to the current date
+    const sevenDaysLater = new Date(currentDate);
+    sevenDaysLater.setDate(currentDate.getDate() + 7);
+    
+    const isDateUpdated = await SupportModel.updateOne({_id: supportId}, {
+        $set: {
+            endDate: sevenDaysLater.toDateString()
+        }
+    })
+
+    if(isDateUpdated.modifiedCount === 0) res.status(400).send({ error: 'Could not update support date' })
+    res.status(200).send({ message: 'Support date extended successfully' })
+}
+
 export const getSingleSupportPost = async (req: Request, res: Response) => {
     try {
         const supportId = req.params.supportId

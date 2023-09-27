@@ -12,7 +12,10 @@ export interface SignUpProps  {
     id?: string;
     picture?: string;
     verificationCode?: string;
-    devices?: Schema.Types.ObjectId[]
+    devices?: Schema.Types.ObjectId[];
+    joinedForum?: boolean;
+    lastSeen?: Date;
+
 }
 
 export interface UserDeviceProps {
@@ -31,8 +34,8 @@ export interface SupportProps {
     address?: string;
     country?: string;
     state?: string;
-    availability?: string;
     conditions?: string[];
+    endDate?: Date;
     authorId?: string;
     images?: {
         imageId: string;
@@ -62,6 +65,11 @@ export interface TransactionProps {
     savedUsers?: string[];
     companyAddress?: string;
 
+}
+
+export interface ForumProps {
+    _id?: Schema.Types.ObjectId;
+    members: Schema.Types.ObjectId[]
 }
 
 export interface ChatRoomProps {

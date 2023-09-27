@@ -5,10 +5,9 @@ import { saveFile } from "../../utils/cloudinary";
 import MessageModel from "../../models/MessageModel";
 import paginatedResult from "../../utils/pagination";
 import { io } from "../..";
-import * as OneSignal from '@onesignal/node-onesignal'
 import UserModel from "../../models/UserModel";
 import { send } from "process";
-import { oneSignalClient } from "../../utils/oneSignal";
+import { OneSignalMetaDataProps, sendNotification } from "../../utils/oneSignal";
 import TransactionModel from "../../models/TransactionModel";
 
 export const initiateChatRoom = async (req: Request, res: Response) => {
@@ -69,10 +68,13 @@ export const sendMessage = async (req: Request, res: Response) => {
         // @ts-ignore
     const userId = req.userId
     const { roomId, text } = req.body
-    if(!roomId) return res.status(400).send({ error: 'Could not find chat room' })
+    
+    if(!roomId) return res.status(400).send({ error: 'roomId is required room' })
 
     let recipientId 
     const chatroom = await ChatRoom.findById(roomId).populate('members')
+    console.log(chatroom);
+    
    if(!chatroom) return res.status(400).send({ error: "Could not find chat room" })
 
    if(chatroom.members) {
@@ -103,7 +105,6 @@ export const sendMessage = async (req: Request, res: Response) => {
    
     const recipient =  await UserModel.findById(recipientId).populate("devices", "-_id -lastSeen -deviceName -__v -userId")
     const sender =  await UserModel.findById(userId)
-    let onesignalIds: string[] = []
     
     const message = await MessageModel.create({
         senderId: userId,
@@ -114,15 +115,12 @@ export const sendMessage = async (req: Request, res: Response) => {
     })
 
     // @ts-ignore
-   recipient?.devices?.forEach((device) =>  onesignalIds.push(device.oneSignalId))
-    const notification = new OneSignal.Notification()
+   const deviceIds = recipient?.devices?.map((device) =>  device.oneSignalId)
 
-    notification.app_id = process.env.ONESIGNAL_APP_ID as string
-    notification.included_segments = onesignalIds
-    notification.contents = {
-        en: message.text
+    const contents = {
+        en: message.text 
     }
-    notification.headings = {
+    const headings = {
         en: sender?.fullName
     }
     if(!message) return res.status(400).send({error: 'Could not create message'})
@@ -131,16 +129,11 @@ export const sendMessage = async (req: Request, res: Response) => {
           chats: message.id
        }
     })
+    await sendNotification(deviceIds as string[], {
+     contents,
+     headings
+    })
  io.sockets.emit('sendMessage', message)
-
-    // const pushNotification = await oneSignalClient.createNotification(notification);
-    // if(!pushNotification.errors) {
-    //     console.log(pushNotification.errors);
-    //     return res.status(200).json(message)
-        
-    // }
-    
- 
      res.status(200).json(message)
     } catch (error: any) {
         console.log(error);
@@ -152,12 +145,18 @@ export const sendMessage = async (req: Request, res: Response) => {
 export const listRoomMessages = async (req: Request, res: Response) => {
    try {
      const roomId = req.params.roomId
-     const page = parseInt(req.query.page as string) || 1 
-    const limit = parseInt(req.query.limit as string) || 10 
+     const page = parseInt(req.query.page as string) || 0 
+    const limit = parseInt(req.query.limit as string) || 50 
      if(!roomId) return res.status(400).send({ error: 'Could not find chat room' })
      const messages = await MessageModel.find({ roomId })
-     const data = paginatedResult(messages, page, limit)
-     return res.status(200).json(data)
+     .sort({
+        createdAt: -1
+    })
+     .limit(limit)
+     .skip(limit * page)
+     
+    //  const data = paginatedResult(messages, page, limit)
+     return res.status(200).json(messages)
    } catch (error: any) {
      res.status(500).send({ error: error.message })
    }

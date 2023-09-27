@@ -36,24 +36,8 @@ const schema = new mongoose.Schema<DiscussionsProps>({
                         type: String
                     },
                     meta_data: {
-                        fullName: {
-                            type: String
-                        },
-                        email: {
-                            type: String
-                        },
-                        state: {
-                            type: String
-                        },
-                        country: {
-                            type: String
-                        },
-                        phoneNumber: {
-                            type: String
-                        },
-                        picture: {
-                          type: String
-                        }
+                        type: mongoose.Schema.Types.ObjectId,
+                        ref: "User"
                     }
                 }
             ],
@@ -61,24 +45,8 @@ const schema = new mongoose.Schema<DiscussionsProps>({
                 type: String
             },
             meta_data: {
-                fullName: {
-                    type: String
-                },
-                email: {
-                    type: String
-                },
-                state: {
-                    type: String
-                },
-                country: {
-                    type: String
-                },
-                phoneNumber: {
-                    type: String
-                },
-                picture: {
-                  type: String
-                }
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
             }
         }
     ],
@@ -90,24 +58,8 @@ const schema = new mongoose.Schema<DiscussionsProps>({
         ref: "Forum"
     },
     meta_data: {
-        fullName: {
-            type: String
-        },
-        email: {
-            type: String
-        },
-        state: {
-            type: String
-        },
-        country: {
-            type: String
-        },
-        phoneNumber: {
-            type: String
-        },
-        picture: {
-          type: String
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     }
 }, { timestamps: true });
 

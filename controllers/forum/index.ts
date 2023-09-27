@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import Forum from "../../models/Forum";
-import { DiscussionsProps, ForumComment, ForumNotificationsProps, ReplyProps } from "../../types";
+import { DiscussionsProps, ForumComment, ForumNotificationsProps, ReplyProps, SignUpProps } from "../../types";
 import ForumPost from "../../models/ForumPost";
 import ForumNotification from "../../models/ForumNotification";
 import UserModel from "../../models/UserModel";
+import { sendNotification } from "../../utils/oneSignal";
 
 export const joinForum = async (req: Request, res: Response) => {
     // @ts-ignore
@@ -21,10 +22,20 @@ export const joinForum = async (req: Request, res: Response) => {
                 $in: [ userId ]
             }
         })
-        if(isMember) return res.status(200).send({ member: 'User alreay a member' })
+        if(isMember) return res.status(200).send({ 
+            message: 'User alreay a member',
+           forum: isMember
+        })
         const joinForum = await Forum.updateOne({ _id }, {
             $push: {
                 members: userId
+            }
+        })
+
+    // @ts-ignore
+        await UserModel.updateOne({ _id: req.userId }, {
+            $set: {
+                joinedForum: true
             }
         })
         if(joinForum.modifiedCount === 0) res.status(400).send({ error: "Could not join"})
@@ -59,15 +70,30 @@ export const forumPost = async (req: Request, res: Response) => {
     }: DiscussionsProps = req.body
     try {
 
-        const user = await UserModel.findById(userId, { _id: 0, emailVerified: 0, password: 0, verificationCode: 0 })
-
         const forumMessage = await ForumPost.create({
             forumId,
             authorId: userId,
             forumPost,
-            meta_data: user
+            meta_data: userId
         })
+
+        const forumUsers =  await UserModel.find({ joinedForum: true }).populate('devices')
+        let deviceIds: string[] = []
+        // @ts-ignore
+         forumUsers.forEach((user) => user.devices?.forEach(device => deviceIds.push(device.oneSignalId)))
+         
+         const contents = {
+            en: forumPost 
+        }
+        const headings = {
+            en: 'Entreplin'
+        }
+
         if(!forumMessage) res.status(400).send({ error: "Could not send forum message" })
+        await sendNotification(deviceIds, {
+            contents,
+            headings
+           })
         res.status(200).json(forumMessage)
     } catch (error: any) {
         res.status(500).send(error.message)
@@ -113,11 +139,10 @@ export const creatComment = async (req: Request, res: Response) => {
     const userId = req.userId
     const { text, postId } = req.body
     try {
-        const user = await UserModel.findById(userId, { _id: 0, emailVerified: 0, password: 0, verificationCode: 0 })
         const comment: ForumComment = {
             authorId: userId,
             text,
-            ...(user && {meta_data: user})
+            meta_data: userId
         }
         const forumPost = await ForumPost.updateOne({ _id: postId}, {
             $push: {
@@ -134,7 +159,14 @@ export const creatComment = async (req: Request, res: Response) => {
 export const getForumPosts = async (req: Request, res: Response) => {
     try {
         const forumId = req.params.forumId
-        const posts = await ForumPost.find({ forumId })
+        const page = parseInt(req.query.page as string) || 0 
+        const limit = parseInt(req.query.limit as string) || 20 
+        const posts = await ForumPost.find({ forumId }).populate("meta_data", '-__v -password -verificationCode')
+        .sort({
+            createdAt: -1
+        })
+         .limit(limit)
+         .skip(limit * page)
         res.status(200).json(posts)
     } catch (error: any) {
         res.status(500).send(error.message)
@@ -185,11 +217,10 @@ export const commentReply = async (req: Request, res: Response) => {
     try {
         const { text }: ReplyProps = req.body 
         if(!text) return res.status(400).send({ error: "text is required" })
-        const user = await UserModel.findById(userId, { _id: 0, emailVerified: 0, password: 0, verificationCode: 0 })
         const reply: ReplyProps = {
             authorId: userId,
             text,
-            ...(user && { meta_data: user })
+            meta_data: userId
         }
         const post = await ForumPost.findById(postId)
         if(!post) return res.status(400).send({ error: "Post not found" })
@@ -315,7 +346,7 @@ export const getForumActivityeNotifications = async (req:Request, res: Response)
 
 export const getSingleForumPost = async (req:Request, res: Response) => {
     try {
-        const post = await ForumPost.findById(req.params.postId)
+        const post = await ForumPost.findById(req.params.postId).populate("meta_data", '-__v -password -verificationCode')
         if(!post) return res.status(400).send({ error: "No post found" })
         res.status(200).json(post)
     } catch (error: any) {

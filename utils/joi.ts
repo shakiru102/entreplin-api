@@ -38,7 +38,7 @@ const supportSchema = joi.object<SupportProps>({
         address: joi.string().required(),
         country: joi.string().required(),
         state: joi.string().required(),
-        availability: joi.string().required(),
+        endDate: joi.date().required(),
         conditions: joi.any().required()
         
 });

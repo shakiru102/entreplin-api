@@ -66,8 +66,16 @@ export default (io: Server) => {
 
 
 //    Disconnect from server
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         onlineUsers = onlineUsers.filter(user => user.onlineId !== socket.id)
+        const isLastSeen = onlineUsers.find(user => user.onlineId === socket.id)
+        if(isLastSeen) {
+          await UserModel.updateOne({ _id: isLastSeen.userId }, {
+            $set: {
+              lastSeen: Date.now()
+            }
+          })
+        }
         io.emit('onlineUsers', onlineUsers)
     })
 

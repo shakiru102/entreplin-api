@@ -16,9 +16,6 @@ const schema = new mongoose.Schema<SupportProps>({
         type: String,
         required: true
     },
-    availability: {
-        type: String,
-    },
     country: {
         type: String,
         required: true
@@ -26,6 +23,10 @@ const schema = new mongoose.Schema<SupportProps>({
     state: {
         type: String,
         required: true
+    },
+    endDate: {
+       type: Date,
+       required: true
     },
     conditions: {
         type: Array,

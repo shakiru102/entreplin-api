@@ -7,6 +7,7 @@ import { encode } from "../../utils/token";
 import axios from "axios";
 import { decodePassword } from "../../utils/hashPassword";
 import jwt from 'jsonwebtoken'
+import { appleTokenVerification } from "../../utils/appleTokenVerification";
 
 
 export const signup = async (req: Request, res: Response) => {
@@ -75,26 +76,23 @@ export const verifyEmaiil = async (req: Request, res: Response) => {
 
 export const signinWithApple = async (req: Request, res: Response) => {
 
-   const { code } = req.body
+   const { code, email, name } = req.body
    if(!code) return res.status(400).send({ error: 'code is required' })
+   if(!email) return res.status(400).send({ error: 'email is required' })
 
    try {
-      const authUser =  await axios.post('https://appleid.apple.com/auth/token', {
-         client_id: process.env.APPLE_CLIENT_ID,
-         client_secret: process.env.APPLE_CLIENT_SECRET,
-         grant_type: 'authorization_code',
-         code
-      })
-      const userData: any = jwt.decode(authUser.data.id_token)
-      if(!userData) return res.status(500).send({ error: "Could not decode id_token" })
-         const user = await UserModel.findOne({ email: userData.email})
+    
+      const userData: any = appleTokenVerification(code)
+      if(!userData) return res.status(400).send({ error: "Invalid token" })
+         const user = await UserModel.findOne({ email: userData.email || email})
          if(user) {
             const token = encode(user._id)
             return res.status(200).send({ message: 'User is authenticated', token })
          }
             const createUser = await UserModel.create({ 
-               email: authUser.data.email,
-               emailVerified: true
+               email,
+               emailVerified: true,
+               fullName: name
             })
             if(!createUser) return res.status(400).send({ message: 'Could not create user' })
             const token = encode(createUser.id)

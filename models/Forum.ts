@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { ChatRoomProps } from "../types";
+import { ChatRoomProps, ForumProps } from "../types";
 
-const schema = new mongoose.Schema<ChatRoomProps>({
+const schema = new mongoose.Schema<ForumProps>({
     members: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -10,4 +10,4 @@ const schema = new mongoose.Schema<ChatRoomProps>({
     ]
 }, { timestamps: true });
 
-export default mongoose.model<ChatRoomProps>('Forum', schema)
+export default mongoose.model<ForumProps>('Forum', schema)

@@ -20,11 +20,7 @@ const params: CorsOptions = {
    credentials: true,
    origin: '*',
 }
-// @ts-ignore
-mongoose.connect(process.env.MONGODB_URI, {
-   useNewUrlParser: true,
-   useUnifiedTopology: true,
-})
+mongoose.connect(`${process.env.MONGODB_URI}` as string)
 .then(() => console.log('database  is connected'))
 .catch(err => console.log(err))
 

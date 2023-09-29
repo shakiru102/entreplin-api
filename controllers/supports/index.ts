@@ -10,7 +10,6 @@ export const createSupportPost = async (req: Request, res: Response) => {
         // @ts-ignore
         const userId = req.userId
         const files = req.files
-        console.log(req.body);
         
         const post: SupportProps = req.body
         const conditions = req.body.conditions.replace(/[\[\]']+/g, "").split(", ")
@@ -28,8 +27,10 @@ export const createSupportPost = async (req: Request, res: Response) => {
                         })
               }
            }
-           const isPost = await SupportModel.create({ ...post, conditions, authorId: userId, images: supportImages })
-            if(!isPost) throw new Error(`Could not create ${ post.supportType } post`)
+           const isPost = await SupportModel.create({ ...post, supportType: post.supportType, conditions, authorId: userId, images: supportImages })
+        console.log(isPost);
+            
+           if(!isPost) throw new Error(`Could not create ${ post.supportType } post`)
             return  res.status(200).send({ message: `${ post.supportType} post created successfully`})
         }
         const isPost = await SupportModel.create({ ...post, authorId: userId })

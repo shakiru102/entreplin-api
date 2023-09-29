@@ -9,7 +9,6 @@ import SupportRoutes from './routes/support'
 import TransactionRoutes from './routes/transactions'
 import ForumRoutes from './routes/forum'
 import ChatRoutes from './routes/chats'
-import https from 'https'
 import http from 'http'
 import { Server } from "socket.io"
 import socketIO from './sockets/index'
@@ -27,7 +26,7 @@ mongoose.connect(`${process.env.MONGODB_URI}` as string)
 
 const app = express()
 const Port = process.env.PORT || 3000
-const server = process.env.NODE_ENV == 'production'? https.createServer(app) : http.createServer(app)
+const server = http.createServer(app)
 
  export const io: Server = new Server(server, {
    cors: {

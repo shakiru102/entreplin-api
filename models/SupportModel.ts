@@ -36,6 +36,10 @@ const schema = new mongoose.Schema<SupportProps>({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    supportStatus: {
+        type: String,
+        default: "Available"
+    },
     images: [
         {
             imageId: {

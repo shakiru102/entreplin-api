@@ -16,7 +16,7 @@ export const saveFile = async (path: any, folder: string, id?: string) => {
     try {
        const savedFile = await cloudinary.v2.uploader.upload(path, { 
         folder: folder,
-        ...(id && { public_id: id } ) 
+        ...(id && { public_id: id } ),
        })
        return { savedFile }
     } catch (error: any) {

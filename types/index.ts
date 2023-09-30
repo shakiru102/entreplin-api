@@ -41,6 +41,7 @@ export interface SupportProps {
         imageId: string;
         url: string;
     }[];
+    supportStatus?: string;
 }
 
 export interface TransactionProps {

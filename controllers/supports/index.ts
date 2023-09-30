@@ -97,7 +97,8 @@ export const extendSupportDate = async (req: Request, res: Response) => {
     if(isSupport.supportStatus === status) return res.status(200).send({ message: "Support is available" })     
     const isDateUpdated = await SupportModel.updateOne({_id: supportId}, {
         $set: {
-            endDate: sevenDaysLater.toDateString()
+            endDate: sevenDaysLater.toDateString(),
+            supportStatus: "Available"
         }
     })
 
@@ -112,7 +113,8 @@ export const extendSupportDate = async (req: Request, res: Response) => {
     
     const isDateUpdated = await SupportModel.updateOne({_id: supportId}, {
         $set: {
-            endDate: sevenDaysLater.toDateString()
+            endDate: sevenDaysLater.toDateString(),
+            supportStatus: "Not Available"
         }
     })
 

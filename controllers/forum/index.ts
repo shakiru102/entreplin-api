@@ -70,6 +70,9 @@ export const forumPost = async (req: Request, res: Response) => {
     }: DiscussionsProps = req.body
     try {
 
+        const user = await UserModel.findOne({ id: userId, joinedForum: true })
+        if(!user) return res.status(400).send({ error: "Please join the forum to send forum post" })
+
         const forumMessage = await ForumPost.create({
             forumId,
             authorId: userId,
@@ -80,7 +83,7 @@ export const forumPost = async (req: Request, res: Response) => {
         const forumUsers =  await UserModel.find({ joinedForum: true }).populate('devices')
         let deviceIds: string[] = []
         // @ts-ignore
-         forumUsers.forEach((user) => user.devices?.forEach(device => deviceIds.push(device.oneSignalId)))
+         forumUsers.forEach((user) => user.id !== userId && user.devices?.forEach(device =>  deviceIds.push(device.oneSignalId)))
          
          const contents = {
             en: forumPost 

@@ -349,7 +349,22 @@ export const getForumActivityeNotifications = async (req:Request, res: Response)
 
 export const getSingleForumPost = async (req:Request, res: Response) => {
     try {
-        const post = await ForumPost.findById(req.params.postId).populate("meta_data", '-__v -password -verificationCode')
+        const post = await ForumPost.findById(req.params.postId)
+        .populate("meta_data", '-__v -password -verificationCode')
+        .populate({
+            path: 'comments',
+            populate: {
+                path:'meta_data',
+                select: '-__v -password -verificationCode'
+            }
+        })
+        .populate({
+            path: 'comments.reply',
+            populate: {
+                path:'meta_data',
+                select: '-__v -password -verificationCode'
+            }
+        })
         if(!post) return res.status(400).send({ error: "No post found" })
         res.status(200).json(post)
     } catch (error: any) {

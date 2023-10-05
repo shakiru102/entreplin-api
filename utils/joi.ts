@@ -53,7 +53,7 @@ const transactionSchema = joi.object<TransactionProps>({
     companyName: joi.string().required(),
     companyProducts: joi.any().required(),
     companyWebsite: joi.string(),
-    price: joi.number(),
+    price: joi.string(),
     post: joi.string().required(),
     transactionType: joi.string().required(),
     country: joi.string().required(),

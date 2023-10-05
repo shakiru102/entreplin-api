@@ -164,7 +164,22 @@ export const getForumPosts = async (req: Request, res: Response) => {
         const forumId = req.params.forumId
         const page = parseInt(req.query.page as string) || 0 
         const limit = parseInt(req.query.limit as string) || 20 
-        const posts = await ForumPost.find({ forumId }).populate("meta_data", '-__v -password -verificationCode')
+        const posts = await ForumPost.find({ forumId })
+        .populate("meta_data", '-__v -password -verificationCode')
+        .populate({
+            path: 'comments',
+            populate: {
+                path:'meta_data',
+                select: '-__v -password -verificationCode'
+            }
+        })
+        .populate({
+            path: 'comments.reply',
+            populate: {
+                path:'meta_data',
+                select: '-__v -password -verificationCode'
+            }
+        })
         .sort({
             createdAt: -1
         })

@@ -70,7 +70,7 @@ export const forumPost = async (req: Request, res: Response) => {
     }: DiscussionsProps = req.body
     try {
 
-        const user = await UserModel.findOne({ id: userId, joinedForum: true })
+        const user = await UserModel.findOne({ _id: userId, joinedForum: true })
         if(!user) return res.status(400).send({ error: "Please join the forum to send forum post" })
 
         const forumMessage = await ForumPost.create({

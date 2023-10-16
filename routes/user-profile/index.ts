@@ -1,6 +1,6 @@
 import express from 'express'
 import { auth } from '../../middlewares/authMiddleware'
-import { addUserDevice, deleteUserDevice, getUserDetails, resetPasssword, updatePassword, updateUserDevice, updateUserLocation, updateUserProfile, uploadUserImage } from '../../controllers/user-profile'
+import { addUserDevice, deleteUserDevice, deleteUserProfile, getUserDetails, resetPasssword, updatePassword, updateUserDevice, updateUserLocation, updateUserProfile, uploadUserImage } from '../../controllers/user-profile'
 import { locationdValidations, passwordValidations, updateUserPasswordValidations } from '../../middlewares/userMiddleware'
 import upload from '../../utils/fileStorage'
 
@@ -15,5 +15,6 @@ route.get('/profile', auth, getUserDetails)
 route.post('/device', auth, addUserDevice)
 route.patch('/device', auth, updateUserDevice)
 route.delete('/device/:deviceId', auth, deleteUserDevice)
+route.delete('/delete-profile', auth, deleteUserProfile)
 
 export default route

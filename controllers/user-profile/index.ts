@@ -164,3 +164,15 @@ export const deleteUserDevice =  async (req: Request, res: Response) => {
     res.status(500).send({ error: error.message })
   }
 }
+
+export const deleteUserProfile = async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore
+    const userId = req.userId
+    await UserModel.deleteOne({ _id: userId })
+    await UserDevice.deleteMany({ userId })
+    res.status(200).send({ message: 'User deleted successfully'})
+  } catch (error: any) {
+    res.status(500).send({ error: error.message })
+  }
+}

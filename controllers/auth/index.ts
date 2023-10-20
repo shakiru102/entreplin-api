@@ -90,12 +90,12 @@ export const signinWithApple = async (req: Request, res: Response) => {
             return res.status(200).send({ message: 'User is authenticated', token })
          }
             const createUser = await UserModel.create({ 
-               email,
+               email: userData.email || email,
                emailVerified: true,
-               fullName: name
+               ...( name && { fullName: name }),
             })
             if(!createUser) return res.status(400).send({ message: 'Could not create user' })
-            const token = encode(createUser.id)
+            const token = encode(createUser._id)
             res.status(200).send({ message:'User created', token })
       
    } catch (error: any) {
